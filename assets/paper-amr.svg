@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="220" viewBox="0 0 360 220" role="img" aria-labelledby="title desc">
+  <title id="title">Knowledge and signals meet language models</title>
+  <desc id="desc">Original concept illustration: a radio waveform and a knowledge graph feed a language model that produces a recognition result.</desc>
+  <defs>
+    <pattern id="grid" width="18" height="18" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".65" fill="#9fb7a0" opacity=".28"/></pattern>
+    <marker id="arrow" viewBox="0 0 5 6" refX="4.5" refY="3" markerWidth="5" markerHeight="6" orient="auto"><path d="M0 0 5 3 0 6" fill="none" stroke="#9fb7a0" stroke-width="1"/></marker>
+  </defs>
+  <rect width="360" height="220" fill="#edf2e9"/>
+  <rect x="20" y="25" width="320" height="170" fill="url(#grid)"/>
+  <g stroke="#9fb7a0" fill="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M28 91H101" opacity=".5"/>
+    <path d="M29 92 34 89 39 95 44 84 49 99 54 79 59 103 64 80 69 99 74 84 79 97 84 86 89 94 94 90 99 92" stroke="#32654b" stroke-width="1.45"/>
+    <path d="m39 132 22-11 26 12-17 12-31-13Zm22-11 9 24m-9-24 4-11m22 23 11-9"/>
+    <circle cx="39" cy="132" r="3" fill="#fafbf7"/><circle cx="61" cy="121" r="3.5" fill="#32654b" stroke="#32654b"/>
+    <circle cx="87" cy="133" r="3" fill="#fafbf7"/><circle cx="70" cy="145" r="3" fill="#fafbf7"/>
+    <circle cx="65" cy="110" r="2" fill="#9fb7a0"/><circle cx="98" cy="124" r="2" fill="#9fb7a0"/>
+    <path d="M106 91h8q8 0 8 8v12h22M107 132h7q8 0 8-8v-13" marker-end="url(#arrow)"/>
+    <rect x="150" y="82" width="65" height="59" rx="10" stroke="#32654b" fill="#fafbf7"/>
+    <path d="M145 95h5m-5 9h5m-5 9h5m-5 9h5m65-27h5m-5 9h5m-5 9h5m-5 9h5"/>
+    <path d="M174 83v-5m9 5v-5m9 5v-5m-18 63v5m9-5v5m9-5v5"/>
+    <path d="M226 111h23" marker-end="url(#arrow)"/>
+    <rect x="259" y="80" width="70" height="62" rx="7" fill="#fafbf7" opacity=".8"/>
+    <path d="M270 94h14m-14 11h44m-44 11h24m-24 11h9" stroke-width="3" opacity=".4"/>
+    <path d="M270 105h44" stroke="#32654b" stroke-width="3"/>
+    <circle cx="318" cy="105" r="2" stroke="#32654b" fill="#32654b"/>
+  </g>
+  <g fill="#32654b" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" text-anchor="middle">
+    <text x="182.5" y="115" font-size="13" letter-spacing="1.2">LLM</text>
+    <g font-size="8" letter-spacing="1" opacity=".7"><text x="65" y="65">SIGNAL + KNOWLEDGE</text><text x="294" y="162">RECOGNITION</text></g>
+  </g>
+</svg>

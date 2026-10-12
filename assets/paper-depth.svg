@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="220" viewBox="0 0 360 220" role="img" aria-labelledby="title desc">
+  <title id="title">Focus planes reveal depth</title>
+  <desc id="desc">Original concept illustration: a stack of translucent focus planes reveals a sharply focused center and a depth direction.</desc>
+  <defs>
+    <pattern id="grid" width="18" height="18" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".65" fill="#9fb7a0" opacity=".28"/></pattern>
+    <linearGradient id="plane" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fafbf7" stop-opacity=".9"/><stop offset="1" stop-color="#9fb7a0" stop-opacity=".18"/></linearGradient>
+  </defs>
+  <rect width="360" height="220" fill="#edf2e9"/>
+  <rect x="20" y="25" width="320" height="170" fill="url(#grid)"/>
+  <g fill="url(#plane)" stroke="#9fb7a0" stroke-width="1" stroke-linejoin="round">
+    <path d="m70 123 115-32 85 45-116 33Z" opacity=".45"/>
+    <path d="m70 110 115-32 85 45-116 33Z" opacity=".65"/>
+    <path d="m70 97 115-32 85 45-116 33Z" opacity=".85"/>
+    <path d="m70 84 115-32 85 45-116 33Z" stroke="#32654b"/>
+  </g>
+  <g stroke="#9fb7a0" stroke-width=".8" fill="none" opacity=".6">
+    <path d="m98 76 85 46m-57-54 86 45m-57-53 86 45M91 95l115-32M113 107l114-33M134 118l115-33"/>
+    <path d="M70 84v39m84 7v39m116-72v39m-85-84v39" stroke-dasharray="2 4"/>
+  </g>
+  <g fill="none" stroke="#32654b" stroke-linecap="round">
+    <ellipse cx="170" cy="91" rx="25" ry="10" stroke-width="1.1"/>
+    <ellipse cx="170" cy="91" rx="15" ry="6" opacity=".6"/>
+    <path d="M170 75v9m0 15v9m-33-17h9m48 0h9" stroke-width="1"/>
+    <path d="M298 145V80m-4 5 4-5 4 5" stroke-width="1.1"/>
+    <path d="M295 145h6m-6-13h6m-6-13h6m-6-13h6" stroke="#9fb7a0"/>
+  </g>
+  <circle cx="170" cy="91" r="2.5" fill="#32654b"/>
+  <g fill="#32654b" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="8" letter-spacing="1" opacity=".7">
+    <text x="34" y="57">FOCUS STACK</text><text x="307" y="117" transform="rotate(-90 307 117)" text-anchor="middle">DEPTH</text>
+    <text x="170" y="185" text-anchor="middle">FINDING STRUCTURE THROUGH FOCUS</text>
+  </g>
+</svg>
