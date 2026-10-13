@@ -5,6 +5,7 @@
   "description": "A personal academic homepage, ready for GitHub Pages.",
   "scripts": {
     "dev": "node --watch scripts/serve.mjs",
+    "sync": "node scripts/sync-publications.mjs",
     "check": "node scripts/check.mjs"
   },
   "engines": {

@@ -87,13 +87,15 @@ Some third-party aggregators label this work ICLR 2026. That label was not verif
 
 ## Presentation
 
-As requested on 13 October 2026, the homepage presents an English biography followed directly by its Chinese version, academic service, and contact details. Publications appear on a separate page as text entries with original publication links. No locally generated citation exports are provided.
+The homepage presents an English biography followed directly by its Chinese version, a separate Publications summary section, academic service, and an email-only Contact section. The Publications summary reads “I have published papers in IJCAI, AAAI, IJCV, …” and includes a View publications link. Retain the introductory phrase followed by venue abbreviations and the ellipsis; do not reduce it to a bare venue list. The named venues follow the existing AMR-LLM (IJCAI), Signal Enhancement (AAAI), and Focus Depth Anything (IJCV) entries documented above. The ellipsis is a presentation choice, not evidence for additional papers, venues, publication statuses, counts, or rankings. The summary is maintained only in `index.html` under `.publication-summary`.
+
+Individual publications appear on the separate Publications page as text entries with original publication links. No locally generated citation exports are provided.
 
 The user supplied the academic service entries **IJCAI 2026 reviewer** and **ICLR 2027 reviewer** on 13 October 2026. These entries are based on the user's statement, not an independent verification of reviewer lists.
 
 The displayed role titles follow the conferences' official terminology: [IJCAI-ECAI 2026 Call for PC Members](https://2026.ijcai.org/call-for-pc-members/) identifies reviewers as **Program Committee members**, while the [ICLR 2027 Reviewer Guide](https://iclr.cc/Conferences/2027/ReviewerGuidelines) uses **Reviewer** and separately refers to Program Chairs as PCs. The website therefore displays **Program Committee Member** for IJCAI 2026 and **Reviewer** for ICLR 2027, without duplicate Chinese labels. This verifies terminology, not individual membership.
 
-Publication years, authors, venues, and links derive from the sources above. Previous decorative illustrations and editorial publication summaries are not displayed in the current interface.
+Publication years, authors, venues, and links derive from the sources above. Previous decorative illustrations and per-paper editorial summaries are not displayed in the current interface.
 
 On 13 October 2026, the user specified [Yuhua Qian's university homepage](https://dig.sxu.edu.cn/qyh/index.htm) for the advisor link and [Xinyan Liang's homepage](https://xinyanliang.github.io/) for author links. These destinations are user-specified. The bilingual biography now ends with the collaboration statement about multimodal learning and visual perception; the separate recent-research paragraph has been removed at the user's request.
 

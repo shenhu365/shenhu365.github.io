@@ -107,7 +107,7 @@
   };
 
   function profileLink(label, url, icon, isExternal = true) {
-    return `<li><a href="${escape(siteUrl(url))}" ${isExternal ? external : ''}><svg class="link-icon" viewBox="0 0 24 24" aria-hidden="true">${icons[icon]}</svg><span>${escape(label)}</span></a></li>`;
+    return `<li${icon === 'email' ? ' class="profile-email"' : ''}><a href="${escape(siteUrl(url))}" ${isExternal ? external : ''}><svg class="link-icon" viewBox="0 0 24 24" aria-hidden="true">${icons[icon]}</svg><span>${escape(label)}</span></a></li>`;
   }
 
   const fields = {
@@ -120,6 +120,11 @@
     if (element.dataset.profile === 'portrait') {
       element.src = siteUrl(profile.portrait);
       element.alt = `${profile.name} / ${profile.nameZh}`;
+    } else if (element.dataset.profile === 'affiliationEn') {
+      // The final comma separates the institute from its university in this field.
+      const boundary = profile.affiliation.en.lastIndexOf(',');
+      element.innerHTML = boundary < 0 ? escape(profile.affiliation.en)
+        : `<span class="affiliation-institute">${escape(profile.affiliation.en.slice(0, boundary).trim())}</span><span class="affiliation-university">${escape(profile.affiliation.en.slice(boundary + 1).trim())}</span>`;
     } else {
       element.textContent = fields[element.dataset.profile] ?? '';
     }
@@ -157,38 +162,14 @@
     ).join('');
   }
 
-  function renderPaper(paper) {
-    const authors = paper.authors.map(author => {
-      const name = author === profile.name ? `<strong>${escape(author)}</strong>` : escape(author);
-      return personLink(author, name);
-    }).join(', ');
-    const venue = paper.venue === 'arXiv'
-      ? `arXiv preprint, ${escape(paper.year)}`
-      : `<strong>${escape(paper.venue)}</strong> · ${escape(paper.venueFull)}, ${escape(paper.year)}`;
-    return `<li class="publication" id="paper-${escape(paper.id)}">
-      <article>
-        <h4 class="paper-title"><a href="${escape(siteUrl(paper.url))}" ${external}>${escape(paper.title)}</a></h4>
-        <p class="paper-authors">${authors}</p>
-        <p class="paper-venue">${venue}</p>
-        <div class="paper-links">
-          <a href="${escape(siteUrl(paper.url))}" ${external}>Paper ↗</a>
-          ${paper.pdf ? `<a href="${escape(siteUrl(paper.pdf))}" ${external}>PDF ↗</a>` : ''}
-        </div>
-      </article>
-    </li>`;
-  }
-
   const publicationList = document.querySelector('#publication-list');
-  if (publicationList) {
-    const years = [...new Set(data.publications.map(paper => paper.year))].sort((a, b) => b - a);
-    publicationList.innerHTML = years.map(year => `<section class="publication-year" aria-labelledby="year-${year}">
-      <h3 id="year-${year}" tabindex="-1">${year}</h3>
-      <ol class="year-papers">${data.publications.filter(paper => paper.year === year).map(renderPaper).join('')}</ol>
-    </section>`).join('');
+  if (publicationList && window.SITE_PUBLICATIONS) {
+    const markup = window.SITE_PUBLICATIONS.render(data, window.SITE_PEOPLE, siteBase.href);
+    publicationList.innerHTML = markup.list;
     const yearNavigation = document.querySelector('#publication-years');
     if (yearNavigation) {
-      yearNavigation.innerHTML = `<ul>${years.map(year => `<li><a href="#year-${year}">${year}</a></li>`).join('')}</ul>`;
-      yearNavigation.hidden = years.length === 0;
+      yearNavigation.innerHTML = markup.years;
+      yearNavigation.hidden = data.publications.length === 0;
     }
   }
 

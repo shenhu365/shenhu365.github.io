@@ -3,6 +3,7 @@ import { dirname, extname, relative, resolve, sep } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
+import { publicationPage, renderPublications, syncPublicationsHtml } from './sync-publications.mjs';
 
 const root = await realpath(resolve(dirname(fileURLToPath(import.meta.url)), '..'));
 const errors = [];
@@ -11,7 +12,7 @@ const references = [];
 const contentPages = ['index.html', 'publications/index.html'];
 const redirectPages = ['publications.html'];
 const pageFiles = [...contentPages, ...redirectPages];
-const staticFiles = new Set([...pageFiles.map(filename => filename.split('/')[0]), 'styles.css', 'app.js', 'data.js', 'people.js', 'assets', '.nojekyll']);
+const staticFiles = new Set([...pageFiles.map(filename => filename.split('/')[0]), 'styles.css', 'app.js', 'data.js', 'people.js', 'publication-renderer.js', 'assets', '.nojekyll']);
 const fail = message => errors.push(message);
 
 async function read(name) {
@@ -46,13 +47,13 @@ function parseHtml(source, filename) {
   if (!contentPages.includes(filename)) return;
   const scripts = [...source.matchAll(/<script\b[^>]*\bsrc\s*=\s*(["'])(.*?)\1[^>]*>/gi)]
     .map(match => relative(root, resolve(root, dirname(filename), match[2].split(/[?#]/)[0])));
-  const requiredScripts = ['people.js', 'data.js', 'app.js'];
+  const requiredScripts = ['people.js', 'data.js', 'publication-renderer.js', 'app.js'];
   for (const script of requiredScripts) {
     if (!scripts.includes(script)) fail(`${filename}: missing required script ${script}.`);
   }
   if (requiredScripts.every(script => scripts.includes(script)) &&
-      !(scripts.indexOf('people.js') < scripts.indexOf('data.js') && scripts.indexOf('data.js') < scripts.indexOf('app.js'))) {
-    fail(`${filename}: load people.js before data.js, and data.js before app.js.`);
+      !requiredScripts.every((script, index) => index === 0 || scripts.indexOf(requiredScripts[index - 1]) < scripts.indexOf(script))) {
+    fail(`${filename}: load scripts in this order: ${requiredScripts.join(' → ')}.`);
   }
 }
 
@@ -67,7 +68,7 @@ for (const match of css.matchAll(/url\(\s*(["']?)(.*?)\1\s*\)/gi)) {
   if (!match[2].startsWith('#')) references.push({ value: match[2], from: 'styles.css' });
 }
 
-for (const name of ['app.js', 'data.js', 'people.js', 'scripts/serve.mjs', 'scripts/check.mjs']) {
+for (const name of ['app.js', 'data.js', 'people.js', 'publication-renderer.js', 'scripts/serve.mjs', 'scripts/check.mjs', 'scripts/sync-publications.mjs']) {
   const result = spawnSync(process.execPath, ['--check', resolve(root, name)], { encoding: 'utf8' });
   if (result.status !== 0) fail(`${name}: JavaScript syntax error\n${result.stderr || result.error || ''}`);
 }
@@ -158,6 +159,15 @@ try {
   fail(`people.js: ${error.message}`);
 }
 
+try {
+  const source = pages.find(page => page.filename === publicationPage)?.source;
+  if (source !== syncPublicationsHtml(source, await renderPublications(root))) {
+    fail(`${publicationPage}: generated publication markup is out of date. Run npm run sync, then npm run check.`);
+  }
+} catch (error) {
+  fail(`Publication markup: ${error.message}`);
+}
+
 async function checkReference({ value, from, label = from }) {
   value = value.trim();
   if (!value || value === '#' || /^(?:data:|blob:)/i.test(value)) return;
@@ -224,6 +234,6 @@ if (errors.length) {
   console.error(`Site checks failed (${errors.length}):\n${errors.map(error => `- ${error}`).join('\n')}`);
   process.exitCode = 1;
 } else {
-  console.log(`Site checks passed: ${contentPages.length} content pages and ${redirectPages.length} redirect page, static HTML anchors/references, content-page script order, JavaScript file syntax, site and people data, static JSON-LD, ${references.length} links/assets and deployment paths.`);
-  console.log('External URL availability is not checked; this check runs entirely offline.');
+  console.log(`Site checks passed: ${contentPages.length} content pages and ${redirectPages.length} redirect page, synchronized publication markup, static HTML anchors/references, content-page script order, JavaScript file syntax, site and people data, static JSON-LD, ${references.length} links/assets and deployment paths.`);
+  console.log('The shared publication renderer is checked offline; browser DOM behavior and external URL availability are not checked.');
 }

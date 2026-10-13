@@ -15,9 +15,10 @@
   <link rel="stylesheet" href="../styles.css">
   <script src="../people.js" defer></script>
   <script src="../data.js" defer></script>
+  <script src="../publication-renderer.js" defer></script>
   <script src="../app.js" defer></script>
 </head>
-<body>
+<body class="publications-page">
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header">
     <nav class="site-nav page-width" aria-label="Main navigation">
@@ -29,13 +30,13 @@
   </header>
   <div class="page-layout page-width">
     <aside class="profile" aria-label="Shen Hu's profile">
-      <img class="profile-photo" data-profile="portrait" src="../assets/shen-hu-official.png" alt="Shen Hu / 胡深" width="180" height="230">
+      <img class="profile-photo" data-profile="portrait" src="../assets/shen-hu-official.png" alt="Shen Hu / 胡深" width="147" height="206">
       <div class="profile-info">
-        <h1 class="profile-name"><span data-profile="name">Shen Hu</span> <span lang="zh-CN" data-profile="nameZh">胡深</span></h1>
+        <h1 class="profile-name"><a class="profile-home" href="../" aria-label="Shen Hu — Home"><span data-profile="name">Shen Hu</span> <span lang="zh-CN" data-profile="nameZh">胡深</span></a></h1>
         <p class="profile-role">Ph.D. student</p>
-        <p class="profile-affiliation"><span data-profile="affiliationEn">Institute of Big Data Science and Industry, Shanxi University</span><span class="affiliation-zh" lang="zh-CN" data-profile="affiliationZh">山西大学大数据科学与产业研究院</span></p>
+        <p class="profile-affiliation"><span data-profile="affiliationEn"><span class="affiliation-institute">Institute of Big Data Science and Industry</span><span class="affiliation-university">Shanxi University</span></span><span class="affiliation-zh" lang="zh-CN" data-profile="affiliationZh">山西大学大数据科学与产业研究院</span></p>
         <ul class="profile-links" data-profile-links>
-          <li><a href="mailto:hushen@alu.sxu.edu.cn">hushen@alu.sxu.edu.cn</a></li>
+          <li class="profile-email"><a href="mailto:hushen@alu.sxu.edu.cn">hushen@alu.sxu.edu.cn</a></li>
           <li><a href="https://scholar.google.com/citations?user=Q31HAAcAAAAJ" target="_blank" rel="noopener noreferrer">Google Scholar</a></li>
           <li><a href="https://github.com/shenhu365" target="_blank" rel="noopener noreferrer">GitHub</a></li>
           <li><a href="https://dig.sxu.edu.cn/xwz/td/bss/2023j/b91acaa0e0754523bf255812c80f2d0d.htm" target="_blank" rel="noopener noreferrer">University profile</a></li>
@@ -44,11 +45,61 @@
     </aside>
     <main id="main" class="main-content">
       <section aria-labelledby="publications-title">
-        <h2 id="publications-title">Publications</h2>
-        <p class="publications-intro"><a data-scholar href="https://scholar.google.com/citations?user=Q31HAAcAAAAJ" target="_blank" rel="noopener noreferrer">Google Scholar ↗</a></p>
-        <nav id="publication-years" class="publication-years" aria-label="Publications by year" hidden></nav>
-        <div id="publication-list"></div>
-        <noscript><p>View the publication list on <a href="https://scholar.google.com/citations?user=Q31HAAcAAAAJ">Google Scholar</a>, or enable JavaScript to display it here.</p></noscript>
+        <div class="publications-heading">
+          <h2 id="publications-title">Publications</h2>
+          <p class="publications-intro"><a data-scholar href="https://scholar.google.com/citations?user=Q31HAAcAAAAJ" target="_blank" rel="noopener noreferrer">Google Scholar <span class="link-arrow" aria-hidden="true">↗</span></a></p>
+        </div>
+        <nav id="publication-years" class="publication-years" aria-label="Publications by year">
+          <!-- publication-years:start -->
+          <ul><li><a href="#year-2026">2026</a></li><li><a href="#year-2025">2025</a></li></ul>
+          <!-- publication-years:end -->
+        </nav>
+        <div id="publication-list">
+          <!-- publication-list:start -->
+          <section class="publication-year" aria-labelledby="year-2026">
+            <h3 id="year-2026" tabindex="-1">2026</h3>
+            <ol class="year-papers">
+              <li class="publication" id="paper-amr-llm">
+                <article>
+                  <h4 class="paper-title"><a href="https://www.ijcai.org/proceedings/2026/486" target="_blank" rel="noopener noreferrer">AMR-LLM: Knowledge-Enhanced Multi-Modal Automatic Modulation Recognition via Large Language Models</a></h4>
+                  <p class="paper-authors"><strong>Shen Hu</strong>, <a href="https://dig.sxu.edu.cn/qyh/index.htm" target="_blank" rel="noopener noreferrer">Yuhua Qian</a>, <a href="https://xinyanliang.github.io/" target="_blank" rel="noopener noreferrer">Xinyan Liang</a>, Zikun Jin, Jiaqian Zhang, Jiangfeng Zhang</p>
+                  <p class="paper-venue"><strong>IJCAI</strong> · Proceedings of the Thirty-Fifth International Joint Conference on Artificial Intelligence, 2026</p>
+                  <div class="paper-links"><a href="https://www.ijcai.org/proceedings/2026/486" target="_blank" rel="noopener noreferrer">Paper <span class="link-arrow" aria-hidden="true">↗</span></a> <a href="https://www.ijcai.org/proceedings/2026/0486.pdf" target="_blank" rel="noopener noreferrer">PDF <span class="link-arrow" aria-hidden="true">↗</span></a></div>
+                </article>
+              </li>
+              <li class="publication" id="paper-focus-depth">
+                <article>
+                  <h4 class="paper-title"><a href="https://link.springer.com/article/10.1007/s11263-026-03006-8" target="_blank" rel="noopener noreferrer">Focus Depth Anything: Towards Robust Depth from Focus in the Wild</a></h4>
+                  <p class="paper-authors">Jiangfeng Zhang, <a href="https://dig.sxu.edu.cn/qyh/index.htm" target="_blank" rel="noopener noreferrer">Yuhua Qian</a>, Tao Yan, <strong>Shen Hu</strong>, Yayu Zhang, Jinwen Liu</p>
+                  <p class="paper-venue"><strong>IJCV</strong> · International Journal of Computer Vision, 2026</p>
+                  <div class="paper-links"><a href="https://link.springer.com/article/10.1007/s11263-026-03006-8" target="_blank" rel="noopener noreferrer">Paper <span class="link-arrow" aria-hidden="true">↗</span></a> <a href="https://link.springer.com/content/pdf/10.1007/s11263-026-03006-8.pdf" target="_blank" rel="noopener noreferrer">PDF <span class="link-arrow" aria-hidden="true">↗</span></a></div>
+                </article>
+              </li>
+              <li class="publication" id="paper-signal-enhancement">
+                <article>
+                  <h4 class="paper-title"><a href="https://ojs.aaai.org/index.php/AAAI/article/view/39404" target="_blank" rel="noopener noreferrer">Signal Enhancement via Multi-view Dynamic Representation and Alignment-aware Fusion</a></h4>
+                  <p class="paper-authors">Zikun Jin, <a href="https://dig.sxu.edu.cn/qyh/index.htm" target="_blank" rel="noopener noreferrer">Yuhua Qian</a>, <a href="https://xinyanliang.github.io/" target="_blank" rel="noopener noreferrer">Xinyan Liang</a>, Jiaqian Zhang, Jinpeng Yuan, <strong>Shen Hu</strong>, Haijun Geng, Honghong Cheng</p>
+                  <p class="paper-venue"><strong>AAAI</strong> · Proceedings of the AAAI Conference on Artificial Intelligence, 2026</p>
+                  <div class="paper-links"><a href="https://ojs.aaai.org/index.php/AAAI/article/view/39404" target="_blank" rel="noopener noreferrer">Paper <span class="link-arrow" aria-hidden="true">↗</span></a> <a href="https://ojs.aaai.org/index.php/AAAI/article/download/39404/43365" target="_blank" rel="noopener noreferrer">PDF <span class="link-arrow" aria-hidden="true">↗</span></a></div>
+                </article>
+              </li>
+            </ol>
+          </section>
+          <section class="publication-year" aria-labelledby="year-2025">
+            <h3 id="year-2025" tabindex="-1">2025</h3>
+            <ol class="year-papers">
+              <li class="publication" id="paper-balanced-multimodal">
+                <article>
+                  <h4 class="paper-title"><a href="https://arxiv.org/abs/2509.02281" target="_blank" rel="noopener noreferrer">Balanced Multimodal Learning: An Unidirectional Dynamic Interaction Perspective</a></h4>
+                  <p class="paper-authors">Shijie Wang, Li Zhang, <a href="https://xinyanliang.github.io/" target="_blank" rel="noopener noreferrer">Xinyan Liang</a>, <a href="https://dig.sxu.edu.cn/qyh/index.htm" target="_blank" rel="noopener noreferrer">Yuhua Qian</a>, <strong>Shen Hu</strong></p>
+                  <p class="paper-venue">arXiv preprint, 2025</p>
+                  <div class="paper-links"><a href="https://arxiv.org/abs/2509.02281" target="_blank" rel="noopener noreferrer">Paper <span class="link-arrow" aria-hidden="true">↗</span></a> <a href="https://arxiv.org/pdf/2509.02281" target="_blank" rel="noopener noreferrer">PDF <span class="link-arrow" aria-hidden="true">↗</span></a></div>
+                </article>
+              </li>
+            </ol>
+          </section>
+          <!-- publication-list:end -->
+        </div>
       </section>
     </main>
     <footer class="site-footer"><span>© <span data-year>2026</span> <span data-profile="name">Shen Hu</span></span></footer>

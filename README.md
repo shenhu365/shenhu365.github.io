@@ -1,6 +1,6 @@
 # 胡深的个人学术主页
 
-两页极简学术网站，使用原生 HTML、CSS 和 JavaScript，无前端框架依赖或构建步骤。首页展示个人资料、连续排列的中英文简介、Academic Service 和 Contact；Publications 页按年份展示论文，仅提供 Paper 和已有的 PDF 链接，不显示 Code 或 BibTeX。
+两页极简学术网站，使用原生 HTML、CSS 和 JavaScript，无前端框架依赖或站点编译打包。首页展示个人资料、中英文简介、独立的 Publications 概述栏目、Academic Service 和仅含邮箱的 Contact；Publications 页按年份展示论文，仅提供 Paper 和已有的 PDF 链接，不显示 Code 或 BibTeX。论文静态 HTML 由本地同步命令更新并提交，禁用 JavaScript 时也能阅读。
 
 - 线上地址：[shenhu365.github.io](https://shenhu365.github.io/)
 - 仓库：[shenhu365/shenhu365.github.io](https://github.com/shenhu365/shenhu365.github.io)，发布分支为 `main`。
@@ -35,12 +35,14 @@ npm run dev -- --base /scholarpage/ --port 4174
 | `people.js` | `window.SITE_PEOPLE`：人物主页 URL 的唯一配置入口及姓名别名 |
 | `data.js` | `window.SITE_DATA`：个人资料、双语简介、学术服务、论文 |
 | `index.html` | 首页结构、静态回退内容、页面元数据 |
-| `publications/index.html` | 论文页结构、年份导航容器、静态个人资料和页面元数据 |
-| `app.js` | 共享渲染、人物自动链接、论文分组与年份导航、主导航当前项与滚动收窄、站主结构化数据 |
+| `publications/index.html` | 论文页结构、已同步的年份与论文静态 HTML、个人资料和页面元数据 |
+| `publication-renderer.js` | 浏览器与 Node.js 共用的年份和论文渲染器，读取资料与人物配置 |
+| `app.js` | 个人资料与简介渲染、人物链接、调用论文渲染器、主导航当前项与滚动收窄、站主结构化数据 |
 | `styles.css` | 两页共享的布局、字体、颜色变量、吸顶导航、桌面浮动侧栏和响应式样式 |
 | `assets/` | 头像、图标、PDF 等公开静态资源 |
 | `assets/fonts/` | 自托管字体文件、来源说明和字体许可证 |
-| `scripts/serve.mjs` / `scripts/check.mjs` | 本地预览 / 离线检查 |
+| `scripts/sync-publications.mjs` | 将共享渲染器生成的年份与论文写入论文页指定区域 |
+| `scripts/serve.mjs` / `scripts/check.mjs` | 本地预览 / 只读离线检查，含论文静态 HTML 是否同步 |
 | `.github/workflows/pages.yml` | 检查和 GitHub Pages 发布流程 |
 | `SOURCE_NOTES.md` | 资料和论文的来源记录；不作为运行时配置或另一份操作手册 |
 
@@ -48,9 +50,11 @@ npm run dev -- --base /scholarpage/ --port 4174
 
 ## 常见内容更新
 
-**个人资料与简介：** 修改 `data.js` 的 `profile`。简介使用 `profile.about.en` 和 `profile.about.zh`，两种语言应同步更新，并同步 `index.html` 中 `[data-bio]` 的静态回退文字。姓名、单位、身份、联系方式或头像变化时，同时检查两页 HTML 中的静态个人资料、图片 `alt`、`title`、description 和 Open Graph 元数据；这些内容不会全部随数据自动更新。
+**个人资料与简介：** 修改 `data.js` 的 `profile`。简介使用 `profile.about.en` 和 `profile.about.zh`，两种语言应同步更新，并同步 `index.html` 中 `[data-bio]` 的静态回退文字。姓名、单位、身份、联系方式或头像变化时，同时检查两页 HTML 中的静态个人资料、图片 `alt`、`title`、description 和 Open Graph 元数据；这些内容不会全部随数据自动更新。英文单位仍只在 `profile.affiliation.en` 保存，页面按最后一个逗号拆分为研究院与学校两层；没有逗号时整段显示。修改姓名还需运行下述 `npm run sync`，更新论文作者加粗。
 
 **学术服务：** 修改 `data.js` 的 `services`，并同步首页静态列表。页面使用英文职务名称，当前为 IJCAI 2026 Program Committee Member 和 ICLR 2027 Reviewer。
+
+**首页 Publications 概述：** 该独立栏目位于双语简介之后、Academic Service 之前，展示“I have published papers in IJCAI, AAAI, IJCV, …”和 View publications 链接，不列具体论文。保留英文前缀，后接会议、期刊缩写与省略号，不简化为只有缩写的列表。概述直接维护在 `index.html` 的 `.publication-summary`，不由同步命令生成；修改时依据 `data.js` 的论文和 `SOURCE_NOTES.md` 的来源记录，避免加入未经核实的数量、等级或发表状态。入口字号在 `styles.css` 的 `.research-link` 中维护，当前为 17px。
 
 **新增论文：** 在 `data.js` 的 `publications` 数组中添加一条对象；下面是格式示例，发布前将示例内容和地址全部替换为真实信息：
 
@@ -69,6 +73,17 @@ npm run dev -- --base /scholarpage/ --port 4174
 
 `id` 必须唯一，建议使用英文小写字母、数字和连字符；作者按原论文顺序完整填写，不用 `et al.` 代替。`year` 使用数字，`url` 填原始论文页面，`pdf` 无可靠地址时留空。年份分组和导航自动生成，同一年内沿用数组顺序。只需维护 Paper/PDF；遗留的 `code` 等字段不会显示，也无需为新论文添加。事实或来源有变化时同步 `SOURCE_NOTES.md`。
 
+**同步论文静态内容：** 更新论文、`people.js` 的人物主页或别名、站主姓名，或修改论文渲染方式后，依次运行：
+
+```sh
+npm run sync
+npm run check
+```
+
+`npm run sync` 读取 `data.js`、`people.js`，调用 `publication-renderer.js`，只更新 `publications/index.html` 中 `publication-years:start` / `publication-years:end` 和 `publication-list:start` / `publication-list:end` 注释标记之间的内容。不要手工编辑生成区，也不要复制论文数据建立另一份配置；将生成后的 HTML 与配置改动一起提交。同步不需要安装依赖，也不是站点编译或打包。
+
+`npm run check` 只读比较当前论文页中的静态 HTML 与当前配置的渲染结果，过期会报错，**不会自动同步**。GitHub Actions 同样只检查；推送前应先在本地同步。浏览器仍复用同一个渲染器，因此启用与禁用 JavaScript 时使用同一套论文和人物配置。
+
 ## 人物主页只在 people.js 修改
 
 导师和合作者主页每人只维护一个 `url`，中文名和其他写法放入该条目的 `aliases`。当前配置如下：
@@ -86,7 +101,7 @@ window.SITE_PEOPLE = {
 };
 ```
 
-简介和论文作者中的匹配姓名会自动添加链接，姓名与别名需使用一致的写法；不要把同一别名分给不同人物。未配置人物或 `url` 留空时保留普通文本，不在 `data.js`、HTML 或 `app.js` 中重复写人物主页 URL。历史来源记录中的链接可以保留。
+简介和论文作者中的匹配姓名会自动添加链接，姓名与别名需使用一致的写法；不要把同一别名分给不同人物。未配置人物或 `url` 留空时保留普通文本，不在 `data.js`、HTML 或 `app.js` 中手工重复维护人物主页 URL。论文生成区会保存同步产生的链接，修改配置后运行 `npm run sync` 即可更新；历史来源记录中的链接可以保留。
 
 其他页面文字可显式复用配置，标签内容就是显示文字：
 
@@ -100,6 +115,7 @@ window.SITE_PEOPLE = {
 ```html
 <script src="../people.js" defer></script>
 <script src="../data.js" defer></script>
+<script src="../publication-renderer.js" defer></script>
 <script src="../app.js" defer></script>
 ```
 
@@ -111,13 +127,15 @@ window.SITE_PEOPLE = {
 
 主导航状态由 `app.js` 根据页面地址与锚点更新：点击 Service 或 Contact 后，高亮对应入口；点击 Home 回到首页时高亮 Home；论文页及其年份锚点高亮 Publications。直达栏目链接、刷新和浏览器前进后退也会同步。不根据手动滚动切换栏目，悬停仅改变文字颜色。页面项使用 `aria-current="page"`，栏目项使用 `aria-current="location"`，新增导航时应同时核对地址匹配与当前项样式。
 
-桌面左侧个人资料按内容自然高度完整展开，通过 CSS `sticky` 保持在初始顶部位置；上下滚动不会主动改变侧栏的顶部偏移。页脚放在正文布局内的右侧第二行，个人资料跨越包括页脚在内的两行，避免独立页脚提前将侧栏向上推离浮动位置。
+桌面内容最大宽度为 1000px，侧栏 230px、栏间距 70px，主栏最多 700px；首页章节间距为 44px，手机为 36px。左侧个人资料按内容自然高度完整展开，通过 CSS `sticky` 保持在初始顶部位置；上下滚动不会主动改变侧栏的顶部偏移。页脚放在正文布局内的右侧第二行，个人资料跨越包括页脚在内的两行，避免独立页脚提前将侧栏向上推离浮动位置。
 
-桌面宽度至少 681px、窗口高度不超过 720px 时，会缩小头像并收紧资料间距，仍保留自然高度、全部内容和浮动；不设独立滚动区域，也不附加缓动动画。极矮窗口无法保证同时显示全部资料，浮动仍受布局容器边界限制。屏幕宽度不超过 680px 时，个人资料保持正常文档布局，顶部导航继续吸顶。打印时隐藏顶部导航，侧栏保持正常文档布局。
+保留当前 147 × 206 像素头像，常规桌面显示宽度为 144px，按原图比例自然缩放。桌面宽度至少 681px、窗口高度不超过 720px 时缩小头像并收紧间距，高度不超过 600px 时进一步改为小头像与姓名并排；仍保留自然高度、全部内容和浮动，不设独立滚动区域。极矮窗口无法保证同时显示全部资料，浮动仍受布局容器边界限制。
 
-整体样式在 `styles.css` 维护，颜色和字体栈集中在 `:root` 变量。英文简介、姓名、导航和标题使用 Source Serif 4，作者、邮箱等辅助信息使用 Source Sans 3。两款字体以 WOFF2 文件自托管在 `assets/fonts/`，通过 `@font-face` 加载并设置 `font-display: swap`；两页 HTML 使用相应目录深度的相对路径预加载字体，不依赖第三方字体 CDN。两款字体均采用 SIL Open Font License 1.1；固定来源、版本与校验值见 [字体来源说明](assets/fonts/README.md)。更换字体时同步检查 CSS、两页预加载、来源说明，并保留目录内的原始许可证。
+屏幕宽度不超过 680px 时，侧栏恢复正常文档布局：手机首页使用 80px 头像配姓名与身份，下方显示双语单位和可换行的联系入口；手机论文页只保留 48px 头像、可返回首页的姓名和身份，隐藏完整单位及联系列表，让读者更快看到论文。桌面论文页仍展示完整资料。打印时隐藏顶部导航，资料恢复普通布局并显示完整单位和联系入口。
 
-中文简介和中文姓名采用系统宋体字体栈，各系统实际可用字体不同，不保证显示完全相同。英文简介为 18px、中文简介为 16px，手机分别为 17px 和 15px；标题、论文标题与辅助文字另设层级。调整时同时检查英中行距、字距、长标题换行及字体加载失败时的回退。
+整体样式在 `styles.css` 维护，颜色和字体栈集中在 `:root` 变量。英文简介、姓名和内容标题使用 Source Serif 4；导航、年份、作者、邮箱等辅助信息使用 Source Sans 3。两款字体以 WOFF2 文件自托管在 `assets/fonts/`，通过 `@font-face` 加载并设置 `font-display: swap`；两页 HTML 使用相应目录深度的相对路径预加载字体，不依赖第三方字体 CDN。两款字体均采用 SIL Open Font License 1.1；固定来源、版本与校验值见 [字体来源说明](assets/fonts/README.md)。更换字体时同步检查 CSS、两页预加载、来源说明，并保留目录内的原始许可证。
+
+中文简介和中文姓名采用系统宋体字体栈，各系统实际可用字体不同，不保证显示完全相同。英文简介为 18px、中文简介为 16px，手机分别为 17px 和 16px；章节标题桌面 26px、手机 25px，作者文字桌面 15px、手机 14px，其余响应式层级以 `styles.css` 为准。调整时同时检查英中行距、字距、长标题换行及字体加载失败时的回退。
 
 `--header-height` 设置导航展开高度与文档占位（桌面 68px、手机 60px），`--header-compact-height` 设置收窄高度；`--anchor-offset` 始终以展开高度增加 24px，给锚点留出安全空间。桌面侧栏的 `--profile-top` 也使用展开高度增加 40px，固定为距离窗口顶部 108px。修改这些变量后，应检查 Service、Contact 和论文年份跳转的目标不会被遮挡，并核对侧栏布局与浮动边界。顶部导航和年份入口最小高度为 44px，手机 Paper/PDF 同样保留 44px 点击高度；同时保留键盘焦点样式和当前页的 `aria-current="page"`。
 
@@ -125,15 +143,17 @@ window.SITE_PEOPLE = {
 
 ## 修改后的检查与同步
 
-先运行：
+涉及论文内容、人物链接、站主姓名或共享论文渲染器时，先同步，再执行只读检查；其他改动可直接检查：
 
 ```sh
+npm run sync
 npm run check
+git diff --check
 ```
 
-它检查 JavaScript 语法、资料与人物配置、别名冲突、HTML 中的脚本加载顺序、静态链接和锚点、CSS/数据中的资源引用、静态 JSON-LD，以及部署路径。检查完全离线，不验证外部网址是否可访问，也不执行浏览器 DOM 渲染。
+检查器执行共享论文渲染器并确认论文页生成区与配置一致，同时检查 JavaScript 语法、资料与人物配置、别名冲突、四个共享脚本的加载顺序、静态链接和年份锚点、CSS/数据中的资源引用、静态 JSON-LD，以及部署路径。检查完全离线，不修改文件，不验证外部网址是否可访问，也不执行浏览器 DOM 渲染。
 
-页面、数据或交互改变时，按影响范围在浏览器验证相关页面、手机窄屏布局、论文显示、年份跳转、人物中英文别名及 Paper/PDF 链接。仅修改文档时核对命令、路径和代码事实，无需重复浏览器验证。运行时生成的年份锚点、人物链接与 JSON-LD 不应仅凭离线检查通过就视为已验证。
+页面、数据或交互改变时，按影响范围在浏览器验证相关页面、手机窄屏布局、论文显示、年份跳转、人物中英文别名及 Paper/PDF 链接；论文相关改动还需核对禁用 JavaScript 时的完整列表和年份跳转。仅修改文档时核对命令、路径和代码事实，无需重复浏览器验证。静态同步检查不能代替实际的浏览器交互、布局和动态 JSON-LD 验证。
 
 导航或排版改变时，还需检查纯白背景、桌面导航组居中、导航铺满宽度并贴顶、键盘焦点和锚点遮挡；核对下滚收窄、上滚展开及键盘聚焦时展开，正文和侧栏位置保持稳定。检查侧栏完整展开且上下滚动时保持相同顶部位置，并核对滚至页尾的容器边界。短窗口应使用紧凑头像与间距且保持浮动。字体变化需核对两页字体资源与预加载路径、实际字体渲染及长文本换行。手机应完整显示四个导航入口，个人资料保持普通布局、不遮挡正文。按改动范围核对打印布局和上述系统辅助显示偏好。
 
@@ -157,10 +177,12 @@ npm run check
 
 当前仓库已配置 `origin` 为 `https://github.com/shenhu365/shenhu365.github.io.git`，使用 `main` 分支。首次启用时确认一次仓库 **Settings → Pages → Source = GitHub Actions**；后续正常更新无需重新设置。
 
-1. 在项目根目录完成检查，并按上节做浏览器验证：
+1. 在项目根目录先同步论文静态 HTML，再检查并按上节做浏览器验证：
 
    ```sh
+   npm run sync
    npm run check
+   git diff --check
    ```
 
 2. 确认当前位于 `main`，检查本次改动，只纳入准备发布的文件：
@@ -170,7 +192,7 @@ npm run check
    git diff
    ```
 
-3. 确认所有改动都属于本次更新后暂存并提交；若有无关文件，把 `git add .` 换成具体文件名：
+3. 确认所有改动都属于本次更新后暂存并提交，包含同步后的 `publications/index.html`；若有无关文件，把 `git add .` 换成具体文件名：
 
    ```sh
    git add .
@@ -192,4 +214,5 @@ npm run check
 
 - **4173 端口被占用，或浏览器仍显示旧版：** 在启动旧服务的终端按 `Ctrl+C`，从当前项目目录重新运行 `npm run dev` 并刷新页面。旧版非 watch 进程不会随服务器脚本更新；不确定时用 `npm run dev -- --port 4174` 启动新服务并访问对应端口。
 - **新页面或文件返回 404：** 检查路径与文件名大小写、浏览器端口及 `--base` 是否正确，再核对上面的预览白名单、检查清单与 Pages 复制清单。macOS 本地可能忽略大小写，GitHub Pages 不会。
+- **检查提示论文静态内容过期：** 运行 `npm run sync` 后再运行 `npm run check`，将配置与更新后的 `publications/index.html` 一起提交；不要通过手改生成区或跳过检查解决。
 - **本地正常，线上没变化：** 查看 Actions 中最近提交是否部署成功，再刷新浏览器。若新增文件未纳入 Git 或发布清单，先修正并重新推送。
