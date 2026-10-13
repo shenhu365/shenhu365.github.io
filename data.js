@@ -1,4 +1,4 @@
-/* Edit your profile, translations and publications here. No build step is required. */
+/* Edit your bilingual profile, academic service and publications here. No build step is required. */
 window.SITE_DATA = {
   profile: {
     name: 'Shen Hu', nameZh: '胡深', initials: 'sh.',
@@ -10,7 +10,7 @@ window.SITE_DATA = {
     institution: 'https://dig.sxu.edu.cn/xwz/td/bss/2023j/b91acaa0e0754523bf255812c80f2d0d.htm',
     advisor: 'Yuhua Qian', advisorZh: '钱宇华',
     advisorUrl: 'https://scholar.google.com/citations?user=SAhzewEAAAAJ',
-    github: 'https://github.com/shenhu365', cv: '', updated: '2026-10-12',
+    github: 'https://github.com/shenhu365', cv: '', updated: '2026-10-13',
     intro: {
       en: 'I work on LLM-driven evolutionary data intelligence, with a focus on AI scientist agent systems.',
       zh: '研究大模型驱动的演化数据智能，聚焦 AI 科学家智能体系统。'
@@ -24,6 +24,10 @@ window.SITE_DATA = {
       zh: '近期工作探索信号表征与大语言模型知识的结合，同时参与多模态学习与视觉感知方向的合作研究。'
     }
   },
+  services: [
+    { venue: 'IJCAI', year: 2026, role: { en: 'Program Committee Member', zh: '程序委员会成员' } },
+    { venue: 'ICLR', year: 2027, role: { en: 'Reviewer', zh: '审稿人' } }
+  ],
   education: [
     { period: '2023 — Present', periodZh: '2023 — 至今', degree: 'Ph.D.', degreeZh: '博士', field: 'Computer Science & Technology', fieldZh: '计算机科学与技术' },
     { period: '2020 — 2023', periodZh: '2020 — 2023', degree: 'Master’s', degreeZh: '硕士', field: 'Computer Science & Technology', fieldZh: '计算机科学与技术' },
@@ -51,7 +55,7 @@ window.SITE_DATA = {
       year: 2026, venue: 'IJCV', venueFull: 'International Journal of Computer Vision',
       category: 'vision', tags: ['Depth estimation', 'Visual perception'], firstAuthor: false,
       summary: { en: 'Learning robust depth perception from focus across diverse scenes.', zh: '面向多样真实场景，探索基于聚焦线索的鲁棒深度感知。' },
-      url: 'https://link.springer.com/article/10.1007/s11263-026-03006-8', pdf: '', code: 'https://github.com/jiangfeng-Z/Focus-Depth-Anything',
+      url: 'https://link.springer.com/article/10.1007/s11263-026-03006-8', pdf: 'https://link.springer.com/content/pdf/10.1007/s11263-026-03006-8.pdf', code: 'https://github.com/jiangfeng-Z/Focus-Depth-Anything',
       doi: '10.1007/s11263-026-03006-8', volume: '134', articleNumber: '439', type: 'article', image: './assets/paper-depth.svg'
     },
     {

@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "A personal academic homepage, ready for GitHub Pages.",
   "scripts": {
-    "dev": "node scripts/serve.mjs",
+    "dev": "node --watch scripts/serve.mjs",
     "check": "node scripts/check.mjs"
   },
   "engines": {

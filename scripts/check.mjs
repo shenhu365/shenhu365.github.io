@@ -8,7 +8,8 @@ const root = await realpath(resolve(dirname(fileURLToPath(import.meta.url)), '..
 const errors = [];
 const documents = new Map();
 const references = [];
-const staticFiles = new Set(['index.html', 'styles.css', 'app.js', 'data.js', 'assets', '.nojekyll']);
+const pageFiles = ['index.html', 'publications.html'];
+const staticFiles = new Set([...pageFiles, 'styles.css', 'app.js', 'data.js', 'assets', '.nojekyll']);
 const fail = message => errors.push(message);
 
 async function read(name) {
@@ -35,11 +36,11 @@ function parseHtml(source, filename) {
   }
 }
 
-const html = await read('index.html');
 const css = await read('styles.css');
 const dataSource = await read('data.js');
 await read('.nojekyll');
-parseHtml(html, 'index.html');
+const pages = await Promise.all(pageFiles.map(async filename => ({ filename, source: await read(filename) })));
+for (const { filename, source } of pages) parseHtml(source, filename);
 
 for (const match of css.matchAll(/url\(\s*(["']?)(.*?)\1\s*\)/gi)) {
   if (!match[2].startsWith('#')) references.push({ value: match[2], from: 'styles.css' });
@@ -57,6 +58,7 @@ try {
   if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('window.SITE_DATA must be an object.');
   if (!data.profile || typeof data.profile !== 'object' || Array.isArray(data.profile)) throw new Error('SITE_DATA.profile must be an object.');
   if (!Array.isArray(data.publications)) throw new Error('SITE_DATA.publications must be an array.');
+  if (!Array.isArray(data.services)) throw new Error('SITE_DATA.services must be an array.');
 
   function inspect(value, location, seen = new Set()) {
     if (value === null || typeof value === 'boolean') return;
@@ -117,7 +119,8 @@ async function checkReference({ value, from, label = from }) {
     fail(`${label}: invalid URL encoding ${value}`);
     return;
   }
-  const filename = filePart ? resolve(root, dirname(from), filePart) : resolve(root, from === 'data.js' ? 'index.html' : from);
+  let filename = filePart ? resolve(root, dirname(from), filePart) : resolve(root, from === 'data.js' ? 'index.html' : from);
+  if (filePart === '.' || filePart.endsWith('/')) filename = resolve(filename, 'index.html');
   const local = relative(root, filename);
   if (local.startsWith(`..${sep}`) || local === '..' || !staticFiles.has(local.split(sep)[0])) {
     fail(`${label}: link points outside the deployed site: ${value}`);
@@ -153,6 +156,6 @@ if (errors.length) {
   console.error(`Site checks failed (${errors.length}):\n${errors.map(error => `- ${error}`).join('\n')}`);
   process.exitCode = 1;
 } else {
-  console.log(`Site checks passed: JavaScript syntax, site data, JSON-LD, ${references.length} links/assets and deployment paths.`);
+  console.log(`Site checks passed: ${pageFiles.length} HTML pages and their anchors, JavaScript syntax, site data, JSON-LD, ${references.length} links/assets and deployment paths.`);
   console.log('External URL availability is not checked; this check runs entirely offline.');
 }

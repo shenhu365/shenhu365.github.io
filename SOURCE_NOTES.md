@@ -2,6 +2,8 @@
 
 Verified on 12 October 2026. This file records the provenance of homepage content; it is not a complete publication list.
 
+本文件仅供维护时查阅，记录信息来源与取舍，不参与页面渲染。网站展示内容以 `data.js` 为准；修改本文件不会改变网页，两者不会自动同步。
+
 ## Profile: user-provided details take priority
 
 The user explicitly confirmed the following for this website:
@@ -49,9 +51,10 @@ Authors: Jiangfeng Zhang, Yuhua Qian, Tao Yan, Shen Hu, Yayu Zhang, Jinwen Liu.
 - Publication date: 18 September 2026.
 - DOI: `10.1007/s11263-026-03006-8`
 - [Official publication page](https://link.springer.com/article/10.1007/s11263-026-03006-8)
+- [Publisher PDF](https://link.springer.com/content/pdf/10.1007/s11263-026-03006-8.pdf) — exact URL supplied by the user on 13 October 2026.
 - [Code and dataset repository linked by the publisher](https://github.com/jiangfeng-Z/Focus-Depth-Anything)
 
-439 is an article number, not a page range. Do not substitute a guessed freely accessible PDF URL for the publisher page.
+439 is an article number, not a page range. The website keeps the publisher page as the Paper link and uses the user-supplied PDF URL for the PDF link.
 
 ### Signal Enhancement / FracFusion
 
@@ -84,4 +87,10 @@ Some third-party aggregators label this work ICLR 2026. That label was not verif
 
 ## Presentation
 
-Publication summaries are short editorial paraphrases, not quoted abstracts. Decorative paper illustrations are original schematic artwork and should not be represented as figures extracted from the papers. Publication years, authors, venues, links, and first-author attribution derive from the sources above.
+As requested on 13 October 2026, the homepage presents an English biography followed directly by its Chinese version, academic service, and contact details. Publications appear on a separate page as text entries with original publication links. No locally generated citation exports are provided.
+
+The user supplied the academic service entries **IJCAI 2026 reviewer** and **ICLR 2027 reviewer** on 13 October 2026. These entries are based on the user's statement, not an independent verification of reviewer lists.
+
+The displayed role titles follow the conferences' official terminology: [IJCAI-ECAI 2026 Call for PC Members](https://2026.ijcai.org/call-for-pc-members/) identifies reviewers as **Program Committee members**, while the [ICLR 2027 Reviewer Guide](https://iclr.cc/Conferences/2027/ReviewerGuidelines) uses **Reviewer** and separately refers to Program Chairs as PCs. The website therefore displays **Program Committee Member** for IJCAI 2026 and **Reviewer** for ICLR 2027, without duplicate Chinese labels. This verifies terminology, not individual membership.
+
+Publication years, authors, venues, and links derive from the sources above. Previous decorative illustrations and editorial publication summaries are not displayed in the current interface.
