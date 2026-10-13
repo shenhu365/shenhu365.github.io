@@ -1,4 +1,4 @@
-/* Edit your bilingual profile, academic service and publications here. No build step is required. */
+/* Edit your profile, academic service and publications here. Person homepage URLs live in people.js. */
 window.SITE_DATA = {
   profile: {
     name: 'Shen Hu', nameZh: '胡深', initials: 'sh.',
@@ -9,19 +9,14 @@ window.SITE_DATA = {
     scholar: 'https://scholar.google.com/citations?user=Q31HAAcAAAAJ',
     institution: 'https://dig.sxu.edu.cn/xwz/td/bss/2023j/b91acaa0e0754523bf255812c80f2d0d.htm',
     advisor: 'Yuhua Qian', advisorZh: '钱宇华',
-    advisorUrl: 'https://scholar.google.com/citations?user=SAhzewEAAAAJ',
     github: 'https://github.com/shenhu365', cv: '', updated: '2026-10-13',
     intro: {
       en: 'I work on LLM-driven evolutionary data intelligence, with a focus on AI scientist agent systems.',
       zh: '研究大模型驱动的演化数据智能，聚焦 AI 科学家智能体系统。'
     },
     about: {
-      en: 'I am a Ph.D. student at the Institute of Big Data Science and Industry, Shanxi University, advised by Prof. Yuhua Qian. My research focuses on LLM-driven evolutionary data intelligence and AI scientist agent systems.',
-      zh: '我是山西大学大数据科学与产业研究院博士研究生，师从钱宇华教授。主要研究大模型驱动的演化数据智能，聚焦 AI 科学家智能体系统。'
-    },
-    researchNote: {
-      en: 'My recent work connects signal representations with the knowledge of large language models, alongside collaborative research in multimodal learning and visual perception.',
-      zh: '近期工作探索信号表征与大语言模型知识的结合，同时参与多模态学习与视觉感知方向的合作研究。'
+      en: 'I am a Ph.D. student at the Institute of Big Data Science and Industry, Shanxi University, advised by Prof. Yuhua Qian. My research focuses on LLM-driven evolutionary data intelligence and AI scientist agent systems. I also collaborate on research in multimodal learning and visual perception.',
+      zh: '我是山西大学大数据科学与产业研究院博士研究生，师从钱宇华教授。主要研究大模型驱动的演化数据智能，聚焦 AI 科学家智能体系统。同时参与多模态学习与视觉感知方向的合作研究。'
     }
   },
   services: [

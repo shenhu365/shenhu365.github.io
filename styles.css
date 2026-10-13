@@ -59,7 +59,13 @@ h2 { font-size: 23px; font-weight: 600; line-height: 1.4; margin: 0 0 18px; lett
 .contact-list dt { color: var(--muted); }
 .contact-list dd { margin: 0; overflow-wrap: anywhere; }
 .contact-list dd [lang="zh-CN"] { color: var(--muted); font-size: 13px; }
-.publications-intro { font-size: 14px; margin: -6px 0 26px; }
+.publications-intro { font-size: 14px; margin: -6px 0 12px; }
+.publication-years { margin-bottom: 24px; }
+.publication-years ul { display: flex; flex-wrap: wrap; align-items: center; list-style: none; margin: 0; padding: 0; gap: 0 12px; }
+.publication-years li { display: flex; align-items: center; gap: 12px; }
+.publication-years li:not(:last-child)::after { content: ""; width: 30px; border-top: 1px solid var(--border); }
+.publication-years a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 14px; font-weight: 600; }
+.publication-years a::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 .publication-year { display: grid; grid-template-columns: 46px minmax(0, 1fr); gap: 19px; margin-top: 24px; }
 .publication-year:first-child { margin-top: 0; }
 .publication-year > h3 { font-size: 15px; line-height: 1.6; margin: 0; font-weight: 600; color: var(--muted); }

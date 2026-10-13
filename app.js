@@ -9,6 +9,25 @@
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   }[character]));
   const external = 'target="_blank" rel="noopener noreferrer"';
+  const personUrls = new Map();
+  Object.entries(window.SITE_PEOPLE || {}).forEach(([name, person]) => {
+    [name, ...(person.aliases || [])].forEach(alias => { personUrls.set(alias, person.url?.trim()); });
+  });
+  const personNames = [...personUrls.keys()].sort((a, b) => b.length - a.length).map(name => {
+    const pattern = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return `${/^\w/.test(name) ? '\\b' : ''}${pattern}${/\w$/.test(name) ? '\\b' : ''}`;
+  });
+  const personPattern = personNames.length ? new RegExp(`(${personNames.join('|')})`, 'g') : null;
+
+  function personLink(name, label = escape(name)) {
+    const url = personUrls.get(name);
+    return url ? `<a href="${escape(url)}" ${external}>${label}</a>` : label;
+  }
+
+  function linkPeople(text) {
+    return personPattern ? text.split(personPattern).map(part => personLink(part)).join('') : escape(text);
+  }
+
   const icons = {
     email: '<rect x="3" y="5" width="18" height="14" rx="1"/><path d="m3 6 9 7 9-7"/>',
     scholar: '<path d="m2 9 10-5 10 5-10 5-10-5Zm4 3v6c4 3 8 3 12 0v-6M22 9v8"/>',
@@ -53,17 +72,12 @@
 
   document.querySelectorAll('[data-bio]').forEach(element => {
     const language = element.dataset.bio;
-    let content = escape(profile.about[language]);
-    const advisor = language === 'en' ? profile.advisor : profile.advisorZh;
-    content = content.replace(escape(advisor), `<a href="${escape(profile.advisorUrl)}" ${external}>${escape(advisor)}</a>`);
+    let content = linkPeople(profile.about[language]);
     const keyTerms = language === 'en'
       ? ['LLM-driven evolutionary data intelligence', 'AI scientist agent systems']
       : ['大模型驱动的演化数据智能', 'AI 科学家智能体系统'];
     keyTerms.forEach(term => { content = content.replace(escape(term), `<strong>${escape(term)}</strong>`); });
     element.innerHTML = content;
-  });
-  document.querySelectorAll('[data-research-note]').forEach(element => {
-    element.textContent = profile.researchNote[element.dataset.researchNote];
   });
 
   const serviceList = document.querySelector('[data-services]');
@@ -74,8 +88,10 @@
   }
 
   function renderPaper(paper) {
-    const authors = paper.authors.map(author => author === profile.name
-      ? `<strong>${escape(author)}</strong>` : escape(author)).join(', ');
+    const authors = paper.authors.map(author => {
+      const name = author === profile.name ? `<strong>${escape(author)}</strong>` : escape(author);
+      return personLink(author, name);
+    }).join(', ');
     const venue = paper.venue === 'arXiv'
       ? `arXiv preprint, ${escape(paper.year)}`
       : `<strong>${escape(paper.venue)}</strong> · ${escape(paper.venueFull)}, ${escape(paper.year)}`;
@@ -96,10 +112,33 @@
   if (publicationList) {
     const years = [...new Set(data.publications.map(paper => paper.year))].sort((a, b) => b - a);
     publicationList.innerHTML = years.map(year => `<section class="publication-year" aria-labelledby="year-${year}">
-      <h3 id="year-${year}">${year}</h3>
+      <h3 id="year-${year}" tabindex="-1">${year}</h3>
       <ol class="year-papers">${data.publications.filter(paper => paper.year === year).map(renderPaper).join('')}</ol>
     </section>`).join('');
+    const yearNavigation = document.querySelector('#publication-years');
+    if (yearNavigation) {
+      yearNavigation.innerHTML = `<ul>${years.map(year => `<li><a href="#year-${year}">${year}</a></li>`).join('')}</ul>`;
+      yearNavigation.hidden = years.length === 0;
+    }
   }
+
+  document.querySelectorAll('[data-person]').forEach(element => {
+    const name = element.dataset.person || element.textContent.trim();
+    const url = personUrls.get(name);
+    if (element.tagName === 'A') {
+      if (url) {
+        element.href = url;
+        element.target = '_blank';
+        element.rel = 'noopener noreferrer';
+      } else {
+        element.removeAttribute('href');
+        element.removeAttribute('target');
+        element.removeAttribute('rel');
+      }
+    } else {
+      element.innerHTML = personLink(name, escape(element.textContent || name));
+    }
+  });
 
   const structured = document.createElement('script');
   structured.type = 'application/ld+json';

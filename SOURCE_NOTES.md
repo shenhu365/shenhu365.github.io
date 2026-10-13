@@ -2,7 +2,7 @@
 
 Verified on 12 October 2026. This file records the provenance of homepage content; it is not a complete publication list.
 
-本文件仅供维护时查阅，记录信息来源与取舍，不参与页面渲染。网站展示内容以 `data.js` 为准；修改本文件不会改变网页，两者不会自动同步。
+本文件仅供维护时查阅，记录信息来源与取舍，不参与页面渲染。个人资料与论文展示以 `data.js` 为准，人物主页与姓名别名以 `people.js` 为准；修改本文件不会改变网页，各文件不会自动同步。日常操作见 [README.md](README.md)，智能体接手与文档同步约定见 [AGENTS.md](AGENTS.md)。
 
 ## Profile: user-provided details take priority
 
@@ -94,3 +94,7 @@ The user supplied the academic service entries **IJCAI 2026 reviewer** and **ICL
 The displayed role titles follow the conferences' official terminology: [IJCAI-ECAI 2026 Call for PC Members](https://2026.ijcai.org/call-for-pc-members/) identifies reviewers as **Program Committee members**, while the [ICLR 2027 Reviewer Guide](https://iclr.cc/Conferences/2027/ReviewerGuidelines) uses **Reviewer** and separately refers to Program Chairs as PCs. The website therefore displays **Program Committee Member** for IJCAI 2026 and **Reviewer** for ICLR 2027, without duplicate Chinese labels. This verifies terminology, not individual membership.
 
 Publication years, authors, venues, and links derive from the sources above. Previous decorative illustrations and editorial publication summaries are not displayed in the current interface.
+
+On 13 October 2026, the user specified [Yuhua Qian's university homepage](https://dig.sxu.edu.cn/qyh/index.htm) for the advisor link and [Xinyan Liang's homepage](https://xinyanliang.github.io/) for author links. These destinations are user-specified. The bilingual biography now ends with the collaboration statement about multimodal learning and visual perception; the separate recent-research paragraph has been removed at the user's request.
+
+At runtime, `people.js` (`window.SITE_PEOPLE`) is the single source of truth for person homepage URLs and name aliases. The links above remain historical source records; person links displayed on the site follow the current people configuration.
