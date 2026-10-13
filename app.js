@@ -1,6 +1,76 @@
 (() => {
   'use strict';
 
+  // Resolve shared data paths from this script, including on nested/project pages.
+  const siteBase = new URL('.', document.currentScript.src);
+  const siteUrl = value => new URL(value, siteBase).href;
+  if (window.location.pathname.endsWith('/index.html')) {
+    window.history.replaceState(null, '', `./${window.location.search}${window.location.hash}`);
+  }
+
+  // A section link is the current location even though it shares the home page.
+  const navigationLinks = [...document.querySelectorAll('.site-nav a')].map(link => ({
+    link, url: new URL(link.href)
+  }));
+  const updateNavigation = () => {
+    const pageLinks = navigationLinks.filter(({ url }) =>
+      url.origin === window.location.origin && url.pathname === window.location.pathname);
+    const current = pageLinks.find(({ url }) => url.hash && url.hash === window.location.hash)
+      || pageLinks.find(({ url }) => !url.hash);
+    navigationLinks.forEach(({ link }) => { link.removeAttribute('aria-current'); });
+    if (current) current.link.setAttribute('aria-current', current.url.hash ? 'location' : 'page');
+  };
+  updateNavigation();
+  window.addEventListener('hashchange', updateNavigation);
+  window.addEventListener('pageshow', updateNavigation);
+
+  // Contract the navigation's surface, never its document space or the sidebar.
+  const header = document.querySelector('.site-header');
+  if (header) {
+    const scrollPosition = () => Math.max(0, Math.min(window.scrollY,
+      Math.max(0, document.documentElement.scrollHeight - window.innerHeight)));
+    let previousScroll = scrollPosition();
+    let direction = 0;
+    let travel = 0;
+    let compact = false;
+    let frame = 0;
+    const setCompact = value => {
+      if (compact === value) return;
+      compact = value;
+      header.classList.toggle('is-compact', value);
+    };
+    const updateHeader = () => {
+      frame = 0;
+      const scroll = scrollPosition();
+      const delta = scroll - previousScroll;
+      previousScroll = scroll;
+      if (scroll <= 12) {
+        direction = 0;
+        travel = 0;
+        setCompact(false);
+      } else if (delta !== 0) {
+        const nextDirection = Math.sign(delta);
+        travel = nextDirection === direction ? travel + Math.abs(delta) : Math.abs(delta);
+        direction = nextDirection;
+        if (direction > 0 && scroll > 28 && travel >= 16) setCompact(true);
+        else if (direction < 0 && travel >= 8) setCompact(false);
+      }
+    };
+    const resetHeader = () => {
+      if (frame) window.cancelAnimationFrame(frame);
+      frame = 0;
+      previousScroll = scrollPosition();
+      direction = 0;
+      travel = 0;
+      setCompact(false);
+    };
+    window.addEventListener('scroll', () => {
+      if (!frame) frame = window.requestAnimationFrame(updateHeader);
+    }, { passive: true });
+    window.addEventListener('resize', resetHeader);
+    window.addEventListener('pageshow', resetHeader);
+  }
+
   const data = window.SITE_DATA;
   if (!data) return;
 
@@ -37,7 +107,7 @@
   };
 
   function profileLink(label, url, icon, isExternal = true) {
-    return `<li><a href="${escape(url)}" ${isExternal ? external : ''}><svg class="link-icon" viewBox="0 0 24 24" aria-hidden="true">${icons[icon]}</svg><span>${escape(label)}</span></a></li>`;
+    return `<li><a href="${escape(siteUrl(url))}" ${isExternal ? external : ''}><svg class="link-icon" viewBox="0 0 24 24" aria-hidden="true">${icons[icon]}</svg><span>${escape(label)}</span></a></li>`;
   }
 
   const fields = {
@@ -48,7 +118,7 @@
   };
   document.querySelectorAll('[data-profile]').forEach(element => {
     if (element.dataset.profile === 'portrait') {
-      element.src = profile.portrait;
+      element.src = siteUrl(profile.portrait);
       element.alt = `${profile.name} / ${profile.nameZh}`;
     } else {
       element.textContent = fields[element.dataset.profile] ?? '';
@@ -97,12 +167,12 @@
       : `<strong>${escape(paper.venue)}</strong> · ${escape(paper.venueFull)}, ${escape(paper.year)}`;
     return `<li class="publication" id="paper-${escape(paper.id)}">
       <article>
-        <h4 class="paper-title"><a href="${escape(paper.url)}" ${external}>${escape(paper.title)}</a></h4>
+        <h4 class="paper-title"><a href="${escape(siteUrl(paper.url))}" ${external}>${escape(paper.title)}</a></h4>
         <p class="paper-authors">${authors}</p>
         <p class="paper-venue">${venue}</p>
         <div class="paper-links">
-          <a href="${escape(paper.url)}" ${external}>Paper ↗</a>
-          ${paper.pdf ? `<a href="${escape(paper.pdf)}" ${external}>PDF ↗</a>` : ''}
+          <a href="${escape(siteUrl(paper.url))}" ${external}>Paper ↗</a>
+          ${paper.pdf ? `<a href="${escape(siteUrl(paper.pdf))}" ${external}>PDF ↗</a>` : ''}
         </div>
       </article>
     </li>`;
@@ -151,4 +221,5 @@
     knowsAbout: ['AI scientist agent systems', 'LLM-driven evolutionary data intelligence', 'Multi-view learning', 'Signal processing']
   });
   document.head.append(structured);
+
 })();

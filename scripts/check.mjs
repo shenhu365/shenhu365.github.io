@@ -8,8 +8,10 @@ const root = await realpath(resolve(dirname(fileURLToPath(import.meta.url)), '..
 const errors = [];
 const documents = new Map();
 const references = [];
-const pageFiles = ['index.html', 'publications.html'];
-const staticFiles = new Set([...pageFiles, 'styles.css', 'app.js', 'data.js', 'people.js', 'assets', '.nojekyll']);
+const contentPages = ['index.html', 'publications/index.html'];
+const redirectPages = ['publications.html'];
+const pageFiles = [...contentPages, ...redirectPages];
+const staticFiles = new Set([...pageFiles.map(filename => filename.split('/')[0]), 'styles.css', 'app.js', 'data.js', 'people.js', 'assets', '.nojekyll']);
 const fail = message => errors.push(message);
 
 async function read(name) {
@@ -31,9 +33,17 @@ function parseHtml(source, filename) {
   for (const match of source.matchAll(/\b(?:href|src|poster)\s*=\s*(["'])(.*?)\1/gis)) {
     references.push({ value: match[2].replaceAll('&amp;', '&'), from: filename });
   }
+  for (const match of source.matchAll(/<meta\b[^>]*>/gi)) {
+    if (!/\bhttp-equiv\s*=\s*(["'])refresh\1/i.test(match[0])) continue;
+    const content = match[0].match(/\bcontent\s*=\s*(["'])(.*?)\1/i)?.[2];
+    const target = content?.match(/^\s*\d+(?:\.\d+)?\s*;\s*url\s*=\s*(.+?)\s*$/i)?.[1];
+    if (!target) fail(`${filename}: meta refresh must contain a redirect URL.`);
+    else references.push({ value: target.replace(/^(["'])(.*)\1$/, '$2').replaceAll('&amp;', '&'), from: filename, label: `${filename}: meta refresh` });
+  }
   for (const match of source.matchAll(/<script\b[^>]*type\s*=\s*["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)) {
     try { JSON.parse(match[1]); } catch (error) { fail(`${filename}: invalid JSON-LD: ${error.message}`); }
   }
+  if (!contentPages.includes(filename)) return;
   const scripts = [...source.matchAll(/<script\b[^>]*\bsrc\s*=\s*(["'])(.*?)\1[^>]*>/gi)]
     .map(match => relative(root, resolve(root, dirname(filename), match[2].split(/[?#]/)[0])));
   const requiredScripts = ['people.js', 'data.js', 'app.js'];
@@ -178,7 +188,7 @@ async function checkReference({ value, from, label = from }) {
     return;
   }
   let filename = filePart ? resolve(root, dirname(from), filePart) : resolve(root, ['data.js', 'people.js'].includes(from) ? 'index.html' : from);
-  if (filePart === '.' || filePart.endsWith('/')) filename = resolve(filename, 'index.html');
+  if (filePart === '.' || filePart === '..' || filePart.endsWith('/')) filename = resolve(filename, 'index.html');
   const local = relative(root, filename);
   if (local.startsWith(`..${sep}`) || local === '..' || !staticFiles.has(local.split(sep)[0])) {
     fail(`${label}: link points outside the deployed site: ${value}`);
@@ -214,6 +224,6 @@ if (errors.length) {
   console.error(`Site checks failed (${errors.length}):\n${errors.map(error => `- ${error}`).join('\n')}`);
   process.exitCode = 1;
 } else {
-  console.log(`Site checks passed: ${pageFiles.length} HTML pages and their anchors, script loading order, JavaScript syntax, site and people data, JSON-LD, ${references.length} links/assets and deployment paths.`);
+  console.log(`Site checks passed: ${contentPages.length} content pages and ${redirectPages.length} redirect page, static HTML anchors/references, content-page script order, JavaScript file syntax, site and people data, static JSON-LD, ${references.length} links/assets and deployment paths.`);
   console.log('External URL availability is not checked; this check runs entirely offline.');
 }

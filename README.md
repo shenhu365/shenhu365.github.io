@@ -1,6 +1,6 @@
 # 胡深的个人学术主页
 
-两页极简学术网站，使用原生 HTML、CSS 和 JavaScript，无第三方运行依赖或构建步骤。首页展示个人资料、连续排列的中英文简介、Academic Service 和 Contact；Publications 页按年份展示论文，仅提供 Paper 和已有的 PDF 链接，不显示 Code 或 BibTeX。
+两页极简学术网站，使用原生 HTML、CSS 和 JavaScript，无前端框架依赖或构建步骤。首页展示个人资料、连续排列的中英文简介、Academic Service 和 Contact；Publications 页按年份展示论文，仅提供 Paper 和已有的 PDF 链接，不显示 Code 或 BibTeX。
 
 - 线上地址：[shenhu365.github.io](https://shenhu365.github.io/)
 - 仓库：[shenhu365/shenhu365.github.io](https://github.com/shenhu365/shenhu365.github.io)，发布分支为 `main`。
@@ -14,7 +14,7 @@
 npm run dev
 ```
 
-打开[首页](http://127.0.0.1:4173/)和[论文页](http://127.0.0.1:4173/publications.html)。修改网页或数据后刷新浏览器；修改预览服务器脚本会触发 Node.js 自动重启。终端按 `Ctrl+C` 停止服务。
+打开[首页](http://127.0.0.1:4173/)和[论文页](http://127.0.0.1:4173/publications/)。修改网页或数据后刷新浏览器；修改预览服务器脚本会触发 Node.js 自动重启。终端按 `Ctrl+C` 停止服务。
 
 验证 GitHub 项目仓库子目录路径时，可另开端口：
 
@@ -22,7 +22,11 @@ npm run dev
 npm run dev -- --base /scholarpage/ --port 4174
 ```
 
-对应地址是 <http://127.0.0.1:4174/scholarpage/> 和 <http://127.0.0.1:4174/scholarpage/publications.html>。当前正式站部署在域名根目录，不需要这个 `--base` 参数。
+对应地址是 <http://127.0.0.1:4174/scholarpage/> 和 <http://127.0.0.1:4174/scholarpage/publications/>。当前正式站部署在域名根目录，不需要这个 `--base` 参数。
+
+页面采用目录式地址：根 `index.html` 对应 `/`，`publications/index.html` 对应 `/publications/`。这是静态目录的默认首页机制，不是 GitHub Pages 的设置开关，也无需后端 rewrite。站内导航使用目录地址；显式访问 `/index.html` 或 `/publications/index.html` 时，共享脚本会将地址规范为对应目录并保留查询参数和锚点。新页面也按 `目录名/index.html` 创建。
+
+旧地址兼容：根 `publications.html` 保留为跳转页，JavaScript 跳转时保留原查询参数和锚点，另有 meta 刷新及手动链接回退。日常编辑和新增导航使用真实目录页。这些地址调整需推送并完成 Pages 部署后才会在线上生效。
 
 ## 文件与配置入口
 
@@ -31,10 +35,11 @@ npm run dev -- --base /scholarpage/ --port 4174
 | `people.js` | `window.SITE_PEOPLE`：人物主页 URL 的唯一配置入口及姓名别名 |
 | `data.js` | `window.SITE_DATA`：个人资料、双语简介、学术服务、论文 |
 | `index.html` | 首页结构、静态回退内容、页面元数据 |
-| `publications.html` | 论文页结构、年份导航容器、静态个人资料和页面元数据 |
-| `app.js` | 共享渲染、人物自动链接、论文分组与年份导航 |
-| `styles.css` | 两页共享的布局、字体、颜色和响应式样式 |
+| `publications/index.html` | 论文页结构、年份导航容器、静态个人资料和页面元数据 |
+| `app.js` | 共享渲染、人物自动链接、论文分组与年份导航、主导航当前项与滚动收窄、站主结构化数据 |
+| `styles.css` | 两页共享的布局、字体、颜色变量、吸顶导航、桌面浮动侧栏和响应式样式 |
 | `assets/` | 头像、图标、PDF 等公开静态资源 |
+| `assets/fonts/` | 自托管字体文件、来源说明和字体许可证 |
 | `scripts/serve.mjs` / `scripts/check.mjs` | 本地预览 / 离线检查 |
 | `.github/workflows/pages.yml` | 检查和 GitHub Pages 发布流程 |
 | `SOURCE_NOTES.md` | 资料和论文的来源记录；不作为运行时配置或另一份操作手册 |
@@ -90,13 +95,33 @@ window.SITE_PEOPLE = {
 <span data-person="梁新彦">梁新彦</span>
 ```
 
-共享脚本按以下顺序加载：
+目录页面（如 `publications/index.html`）使用 `../` 引用根目录共享脚本，并保持以下顺序；根首页使用 `./`：
 
 ```html
-<script src="./people.js" defer></script>
-<script src="./data.js" defer></script>
-<script src="./app.js" defer></script>
+<script src="../people.js" defer></script>
+<script src="../data.js" defer></script>
+<script src="../app.js" defer></script>
 ```
+
+目录页的样式和静态图片同样使用 `../styles.css`、`../assets/文件名`。`data.js` 中的相对资源路径仍按站点根目录填写，例如 `./assets/头像.png`；`app.js` 根据自身脚本地址定位站点根目录，再解析这些路径。不要添加 `<base>` 标签，以免论文年份等页内锚点跳到首页。
+
+## 样式与导航维护
+
+视觉设计保持简洁的学术风格，使用纯白背景，通过字体层级、留白和细分隔线组织内容。顶部导航的白色背景铺满视口，紧贴顶部，无外侧间隙；四个文字入口在与正文等宽的区域内居中排列，以唯一的细下划线标识当前页面或栏目。向下滚动时导航区域轻微收窄，向上滚动或回到顶部时恢复；桌面为 68px → 52px，手机为 60px → 50px，过渡为 180ms。文字和 44px 点击高度不缩小，导航在文档中的占位保持展开高度，正文与侧栏位置不随之改变。
+
+主导航状态由 `app.js` 根据页面地址与锚点更新：点击 Service 或 Contact 后，高亮对应入口；点击 Home 回到首页时高亮 Home；论文页及其年份锚点高亮 Publications。直达栏目链接、刷新和浏览器前进后退也会同步。不根据手动滚动切换栏目，悬停仅改变文字颜色。页面项使用 `aria-current="page"`，栏目项使用 `aria-current="location"`，新增导航时应同时核对地址匹配与当前项样式。
+
+桌面左侧个人资料按内容自然高度完整展开，通过 CSS `sticky` 保持在初始顶部位置；上下滚动不会主动改变侧栏的顶部偏移。页脚放在正文布局内的右侧第二行，个人资料跨越包括页脚在内的两行，避免独立页脚提前将侧栏向上推离浮动位置。
+
+桌面宽度至少 681px、窗口高度不超过 720px 时，会缩小头像并收紧资料间距，仍保留自然高度、全部内容和浮动；不设独立滚动区域，也不附加缓动动画。极矮窗口无法保证同时显示全部资料，浮动仍受布局容器边界限制。屏幕宽度不超过 680px 时，个人资料保持正常文档布局，顶部导航继续吸顶。打印时隐藏顶部导航，侧栏保持正常文档布局。
+
+整体样式在 `styles.css` 维护，颜色和字体栈集中在 `:root` 变量。英文简介、姓名、导航和标题使用 Source Serif 4，作者、邮箱等辅助信息使用 Source Sans 3。两款字体以 WOFF2 文件自托管在 `assets/fonts/`，通过 `@font-face` 加载并设置 `font-display: swap`；两页 HTML 使用相应目录深度的相对路径预加载字体，不依赖第三方字体 CDN。两款字体均采用 SIL Open Font License 1.1；固定来源、版本与校验值见 [字体来源说明](assets/fonts/README.md)。更换字体时同步检查 CSS、两页预加载、来源说明，并保留目录内的原始许可证。
+
+中文简介和中文姓名采用系统宋体字体栈，各系统实际可用字体不同，不保证显示完全相同。英文简介为 18px、中文简介为 16px，手机分别为 17px 和 15px；标题、论文标题与辅助文字另设层级。调整时同时检查英中行距、字距、长标题换行及字体加载失败时的回退。
+
+`--header-height` 设置导航展开高度与文档占位（桌面 68px、手机 60px），`--header-compact-height` 设置收窄高度；`--anchor-offset` 始终以展开高度增加 24px，给锚点留出安全空间。桌面侧栏的 `--profile-top` 也使用展开高度增加 40px，固定为距离窗口顶部 108px。修改这些变量后，应检查 Service、Contact 和论文年份跳转的目标不会被遮挡，并核对侧栏布局与浮动边界。顶部导航和年份入口最小高度为 44px，手机 Paper/PDF 同样保留 44px 点击高度；同时保留键盘焦点样式和当前页的 `aria-current="page"`。
+
+键盘聚焦导航时保持展开，鼠标点击不会将导航锁定为展开状态；调整窗口或浏览器返回页面时也会恢复展开。样式为系统的“减少动态效果”和“增强对比度”偏好提供相应规则；减少动态效果时关闭平滑滚动、链接颜色与导航高度过渡。调整样式时保留这些规则、可见焦点和清晰的当前页标识。
 
 ## 修改后的检查与同步
 
@@ -110,15 +135,17 @@ npm run check
 
 页面、数据或交互改变时，按影响范围在浏览器验证相关页面、手机窄屏布局、论文显示、年份跳转、人物中英文别名及 Paper/PDF 链接。仅修改文档时核对命令、路径和代码事实，无需重复浏览器验证。运行时生成的年份锚点、人物链接与 JSON-LD 不应仅凭离线检查通过就视为已验证。
 
-新增页面或根目录资源时，同步以下位置：
+导航或排版改变时，还需检查纯白背景、桌面导航组居中、导航铺满宽度并贴顶、键盘焦点和锚点遮挡；核对下滚收窄、上滚展开及键盘聚焦时展开，正文和侧栏位置保持稳定。检查侧栏完整展开且上下滚动时保持相同顶部位置，并核对滚至页尾的容器边界。短窗口应使用紧凑头像与间距且保持浮动。字体变化需核对两页字体资源与预加载路径、实际字体渲染及长文本换行。手机应完整显示四个导航入口，个人资料保持普通布局、不遮挡正文。按改动范围核对打印布局和上述系统辅助显示偏好。
+
+新增目录页面或根目录资源时，同步以下位置：
 
 | 同步位置 | 要做的事 |
 | --- | --- |
-| `scripts/serve.mjs` 的 `allowed` | 允许本地预览访问新页面或根目录文件 |
-| `scripts/check.mjs` 的 `pageFiles` / `staticFiles` | 新页面加入 `pageFiles`；新根目录资源加入 `staticFiles`。新增 JS 还应加入语法检查清单 |
-| `.github/workflows/pages.yml` 的复制命令 | 将新页面或根目录文件加入 `_site` 发布清单 |
+| `scripts/serve.mjs` 的 `allowed` | 新内容页加入对应目录名，允许预览其 `index.html`；根目录文件单独加入 |
+| `scripts/check.mjs` 的页面和资源清单 | 新内容页以 `目录名/index.html` 加入 `contentPages`，兼容跳转页加入 `redirectPages`；两者合并为 `pageFiles`，页面所属目录自动进入 `staticFiles`。其他根目录资源加入 `staticFiles`，新增 JS 还应加入语法检查清单 |
+| `.github/workflows/pages.yml` 的复制命令 | 将新页面目录或根目录文件加入 `_site` 发布清单，保留目录结构 |
 
-放在 `assets/` 内的资源已由目录整体覆盖，无需逐个加入清单。本地引用使用 `./assets/文件名` 等相对路径，避免以 `/` 开头。新 HTML 页面还需加载上述共享脚本并补上适当导航。
+放在 `assets/` 内的资源已由目录整体覆盖，无需逐个加入清单。本地引用按所在页面的目录深度使用相对路径，避免以 `/` 开头。新内容页还需加载上述共享脚本并补上目录式导航。年份跳转使用本页 `#year-年份` 锚点。
 
 每轮修改都要同步相关说明：用法和字段变化更新 README，项目约定变化更新根 `AGENTS.md`，事实和来源变化更新 `SOURCE_NOTES.md`。只维护受影响的内容，不把同一套说明复制到多个 AI 专用文件。
 
@@ -157,7 +184,7 @@ npm run check
    git push origin main
    ```
 
-推送会自动触发 [Deploy academic homepage](https://github.com/shenhu365/shenhu365.github.io/actions) 工作流，无需再手动 Run workflow。等待检查和部署成功，再打开[线上主页](https://shenhu365.github.io/)确认更新。工作流只发布清单中的静态文件和 `assets/`，不会发布 README、AGENTS 或来源笔记。
+推送会自动触发 [Deploy academic homepage](https://github.com/shenhu365/shenhu365.github.io/actions) 工作流，无需再手动 Run workflow。等待检查和部署成功，再打开[线上主页](https://shenhu365.github.io/)确认更新。工作流分别复制根静态文件（含兼容跳转页）、`publications/` 目录和 `assets/` 目录，不会发布 README、AGENTS 或来源笔记。
 
 推送报错时先查看原因，处理登录、网络或远端新增提交后再尝试；不要用 `--force` 覆盖远端记录。
 

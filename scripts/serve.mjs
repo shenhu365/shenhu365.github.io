@@ -28,7 +28,7 @@ if (!/^\/(?:[A-Za-z0-9_-]+\/)*$/.test(options.base)) {
 }
 
 const base = options.base;
-const allowed = new Set(['index.html', 'publications.html', 'styles.css', 'app.js', 'people.js', 'data.js', 'assets']);
+const allowed = new Set(['index.html', 'publications', 'publications.html', 'styles.css', 'app.js', 'people.js', 'data.js', 'assets']);
 const mimeTypes = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -56,15 +56,24 @@ function reply(res, status, message, headers = {}) {
   res.end(message);
 }
 
+function isPublicPath(filename) {
+  const parts = filename.slice(root.length + 1).split(sep);
+  return filename.startsWith(root + sep) && allowed.has(parts[0]) &&
+    !parts.some(part => part.startsWith('.'));
+}
+
 const server = createServer(async (req, res) => {
   if (!['GET', 'HEAD'].includes(req.method)) {
     reply(res, 405, 'Method not allowed', { Allow: 'GET, HEAD' });
     return;
   }
 
+  const requestTarget = req.url || '/';
+  const queryIndex = requestTarget.indexOf('?');
+  const query = queryIndex === -1 ? '' : requestTarget.slice(queryIndex);
   let requestPath;
   try {
-    requestPath = decodeURIComponent((req.url || '/').split('?')[0]);
+    requestPath = decodeURIComponent(requestTarget.split('?')[0]);
   } catch {
     reply(res, 400, 'Invalid URL');
     return;
@@ -78,7 +87,7 @@ const server = createServer(async (req, res) => {
   }
 
   if (base !== '/' && requestPath === base.slice(0, -1)) {
-    res.writeHead(308, { Location: base });
+    res.writeHead(308, { Location: base + query });
     res.end();
     return;
   }
@@ -94,13 +103,25 @@ const server = createServer(async (req, res) => {
   }
 
   try {
-    const absolutePath = await realpath(resolve(root, relativePath));
-    if (!absolutePath.startsWith(root + sep) ||
-        absolutePath.slice(root.length + 1).split(sep).some(part => part.startsWith('.'))) {
+    let absolutePath = await realpath(resolve(root, relativePath));
+    if (!isPublicPath(absolutePath)) {
       reply(res, 403, 'Forbidden');
       return;
     }
-    const info = await stat(absolutePath);
+    let info = await stat(absolutePath);
+    if (info.isDirectory()) {
+      if (!requestPath.endsWith('/')) {
+        res.writeHead(308, { Location: `${requestPath}/${query}` });
+        res.end();
+        return;
+      }
+      absolutePath = await realpath(resolve(absolutePath, 'index.html'));
+      if (!isPublicPath(absolutePath)) {
+        reply(res, 403, 'Forbidden');
+        return;
+      }
+      info = await stat(absolutePath);
+    }
     if (!info.isFile()) {
       reply(res, 404, 'Not found');
       return;
