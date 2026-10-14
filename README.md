@@ -1,8 +1,8 @@
 # Shen Hu（胡深）的个人学术主页
 
-包含个人介绍、论文与学术服务，使用原生 HTML、CSS 和 JavaScript，部署于 GitHub Pages。
+包含个人介绍、论文、获奖与学术服务，使用原生 HTML、CSS 和 JavaScript，部署于 GitHub Pages。
 
-[线上主页](https://shenhu365.github.io/) · [论文](https://shenhu365.github.io/publications/) · [GitHub 仓库](https://github.com/shenhu365/shenhu365.github.io)
+[线上主页](https://shenhu365.github.io/) · [论文](https://shenhu365.github.io/publications/) · [获奖](https://shenhu365.github.io/awards/) · [GitHub 仓库](https://github.com/shenhu365/shenhu365.github.io)
 
 ## 本地预览
 
@@ -16,7 +16,7 @@ npm run dev
 
 ## 日常维护
 
-- `data.js`：个人资料、学术服务与论文。
+- `data.js`：个人资料、学术服务、奖项与论文。
 - `people.js`：人物主页链接。
 - `styles.css`：页面样式。
 - 默认在 `main` 修改和部署；极简版保留在 `codex/minimal-backup`。

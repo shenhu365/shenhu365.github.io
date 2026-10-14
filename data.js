@@ -1,4 +1,4 @@
-/* Edit your profile, academic service and publications here. Person homepage URLs live in people.js. */
+/* Edit your profile, academic service, awards and publications here. Person homepage URLs live in people.js. */
 window.SITE_DATA = {
   profile: {
     name: 'Shen Hu', nameZh: '胡深', initials: 'sh.',
@@ -22,6 +22,26 @@ window.SITE_DATA = {
   services: [
     { venue: 'ICLR', year: 2027, role: { en: 'Reviewer', zh: '审稿人' } },
     { venue: 'IJCAI', year: 2026, role: { en: 'Program Committee Member', zh: '程序委员会成员' } }
+  ],
+  awards: [
+    {
+      title: { en: 'China Undergraduate Mathematical Contest in Modeling (CUMCM)', zh: '全国大学生数学建模竞赛' },
+      honor: { en: 'National Second Prize', zh: '全国二等奖' },
+      detail: { en: '', zh: '' },
+      url: 'https://www.mcm.edu.cn/'
+    },
+    {
+      title: { en: '“Huawei Cup” China Post-Graduate Mathematical Contest in Modeling (CPMCM)', zh: '“华为杯”中国研究生数学建模竞赛' },
+      honor: { en: 'National Second Prize', zh: '全国二等奖' },
+      detail: { en: 'Top 4% in Huawei Special Problem B', zh: '华为专项 B 题排名前 4%' },
+      url: 'https://cpipc.acge.org.cn/cw/hp/4'
+    },
+    {
+      title: { en: 'China Computer Federation (CCF)', zh: '中国计算机学会（CCF）' },
+      honor: { en: 'Recognition for Campus Outreach', zh: '高校宣传员表彰' },
+      detail: { en: '', zh: '' },
+      url: 'https://www.ccf.org.cn/c/2018-09-29/653020.shtml'
+    }
   ],
   education: [
     { period: '2023 — Present', periodZh: '2023 — 至今', degree: 'Ph.D.', degreeZh: '博士', field: 'Computer Science & Technology', fieldZh: '计算机科学与技术' },

@@ -28,7 +28,7 @@ if (!/^\/(?:[A-Za-z0-9_-]+\/)*$/.test(options.base)) {
 }
 
 const base = options.base;
-const allowed = new Set(['index.html', 'publications', 'publications.html', 'styles.css', 'app.js', 'people.js', 'data.js', 'publication-renderer.js', 'assets']);
+const allowed = new Set(['index.html', 'publications', 'awards', 'publications.html', 'styles.css', 'app.js', 'people.js', 'data.js', 'publication-renderer.js', 'assets']);
 const mimeTypes = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',

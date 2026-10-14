@@ -9,7 +9,7 @@ const root = await realpath(resolve(dirname(fileURLToPath(import.meta.url)), '..
 const errors = [];
 const documents = new Map();
 const references = [];
-const contentPages = ['index.html', 'publications/index.html'];
+const contentPages = ['index.html', 'publications/index.html', 'awards/index.html'];
 const redirectPages = ['publications.html'];
 const pageFiles = [...contentPages, ...redirectPages];
 const staticFiles = new Set([...pageFiles.map(filename => filename.split('/')[0]), 'styles.css', 'app.js', 'data.js', 'people.js', 'publication-renderer.js', 'assets', '.nojekyll']);
@@ -111,6 +111,7 @@ try {
   if (!data.profile || typeof data.profile !== 'object' || Array.isArray(data.profile)) throw new Error('SITE_DATA.profile must be an object.');
   if (!Array.isArray(data.publications)) throw new Error('SITE_DATA.publications must be an array.');
   if (!Array.isArray(data.services)) throw new Error('SITE_DATA.services must be an array.');
+  if (!Array.isArray(data.awards)) throw new Error('SITE_DATA.awards must be an array.');
   inspect(data, 'SITE_DATA', 'data.js');
   JSON.parse(JSON.stringify(data));
 } catch (error) {

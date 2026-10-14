@@ -151,6 +151,18 @@
     ).join('');
   }
 
+  const awardList = document.querySelector('[data-awards]');
+  if (awardList) {
+    awardList.innerHTML = data.awards.map(award =>
+      `<li class="award"><article>
+        <h3 class="award-title"><a href="${escape(award.url)}" ${external}>${escape(award.title.en)}</a></h3>
+        <p class="award-title-zh" lang="zh-CN">${escape(award.title.zh)}</p>
+        <p class="award-honor">${escape(award.honor.en)}<span lang="zh-CN">${escape(award.honor.zh)}</span></p>
+        ${award.detail.en || award.detail.zh ? `<p class="award-detail">${escape(award.detail.en)}<span lang="zh-CN">${escape(award.detail.zh)}</span></p>` : ''}
+      </article></li>`
+    ).join('');
+  }
+
   const publicationList = document.querySelector('#publication-list');
   if (publicationList && window.SITE_PUBLICATIONS) {
     const markup = window.SITE_PUBLICATIONS.render(data, window.SITE_PEOPLE, siteBase.href);

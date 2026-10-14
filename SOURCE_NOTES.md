@@ -1,6 +1,6 @@
 # Content sources and editorial decisions
 
-Verified on 12 October 2026. This file records the provenance of homepage content; it is not a complete publication list.
+Initial sources verified on 12 October 2026; later confirmations are noted below. This file records the provenance of homepage content; it is not a complete publication list.
 
 本文件仅供维护时查阅，记录信息来源与取舍，不参与页面渲染。个人资料与论文展示以 `data.js` 为准，人物主页与姓名别名以 `people.js` 为准；修改本文件不会改变网页，各文件不会自动同步。日常操作见 [MAINTENANCE.md](MAINTENANCE.md)，智能体接手与文档同步约定见 [AGENTS.md](AGENTS.md)。
 
@@ -24,7 +24,17 @@ The [university profile](https://dig.sxu.edu.cn/xwz/td/bss/2023j/b91acaa0e075452
 - Master's: September 2020–June 2023.
 - Bachelor's: September 2016–June 2020.
 
-No ORCID, citation metrics, awards, or CV link have been inferred.
+No ORCID, citation metrics, or CV link have been inferred. Awards and recognition follow the confirmations below.
+
+## Awards and recognition
+
+On 14 October 2026, the user confirmed two mathematical modeling awards and CCF recognition, and explicitly requested that the Awards page omit years. The page follows the configuration order, without inferring editions or a chronology.
+
+- **全国大学生数学建模竞赛 — 全国二等奖.** The Chinese name follows the [official contest website](https://www.mcm.edu.cn/). Its [official English introduction](https://en.mcm.edu.cn/html_en/section/b77a1402496e05863c96de6120931806.html) uses CUMCM and explains that the initial C means China for participants from mainland China and Macau; the page therefore uses **China Undergraduate Mathematical Contest in Modeling (CUMCM)**. The prize is user-confirmed; the official name verification does not independently verify the user's competition result. Do not infer a title sponsor or edition without a year.
+- **“华为杯”中国研究生数学建模竞赛 — 全国二等奖，华为专项 B 题排名前 4%.** The Chinese name follows the [official contest platform](https://cpipc.acge.org.cn/cw/hp/4); **China Post-Graduate Mathematical Contest in Modeling (CPMCM)** follows its [official English invitation](https://cpipc.acge.org.cn/cw/contestNews/detail/4/2c9080189914a5c4019940d4f22060bc?page=3). The prize and ranking are user-confirmed. “Top 4% in Huawei Special Problem B” describes that specific problem's ranking, not the overall contest ranking or a separate prize category.
+- **中国计算机学会（CCF）高校宣传员表彰.** The user supplied the report title; the [CCF official report “CCF表彰108名高校宣传员”](https://www.ccf.org.cn/c/2018-09-29/653020.shtml) lists **胡深 — 山西大学** at entry 66. It recognizes CCF campus outreach representatives without naming an “优秀” or “Outstanding” award. The website uses **Recognition for Campus Outreach** as a descriptive English translation, not an official award title. The report's publication date is retained in the source URL but is not displayed as an award year.
+
+Runtime content is maintained in `data.js` under `awards`; `awards/index.html` retains a manually synchronized static fallback. Competition and organization titles link to the official sources above. The Awards page adds no inferred grades, dates, counts, or award titles.
 
 ## Publication metadata
 

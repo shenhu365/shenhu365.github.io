@@ -95,7 +95,7 @@ h1, h2, h3, h4 { color: var(--heading); }
 .content-section + .content-section { border-top: 1px solid var(--border); }
 h2 { font-size: 22px; font-weight: 600; line-height: 1.4; letter-spacing: -.5px; margin-bottom: 18px; }
 .bio-en { font-size: 17px; line-height: 1.9; }
-.bio-en strong { color: var(--link); font-weight: 700; }
+.bio-en strong { color: var(--text); font-weight: 700; }
 .bio-en a, .bio-zh a { color: inherit; text-decoration: underline; text-decoration-color: #cbd3e2; }
 .bio-en a:hover, .bio-zh a:hover, .bio-en a:focus-visible, .bio-zh a:focus-visible { color: var(--link); text-decoration-color: currentColor; }
 .bio-zh { margin-top: 21px; font-family: var(--font-zh); font-size: 15px; line-height: 1.95; color: var(--reading-text); }
@@ -116,7 +116,18 @@ h2 { font-size: 22px; font-weight: 600; line-height: 1.4; letter-spacing: -.5px;
 .contact-line a:hover { color: var(--link); text-decoration: none; }
 
 .publications-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 22px; }
-.publications-heading h2 { font-size: 34px; letter-spacing: -1.2px; line-height: 1.2; margin: 0; }
+.publications-heading h2, .awards-heading h2 { font-size: 34px; letter-spacing: -1.2px; line-height: 1.2; margin: 0; }
+.awards-heading { margin-bottom: 22px; }
+.award-list { padding: 0; list-style: none; border: 1px solid var(--border); border-radius: 16px; background: var(--card); box-shadow: 0 3px 8px -6px var(--shadow); }
+.award { padding: 28px 30px; }
+.award + .award { border-top: 1px solid var(--border); }
+.award-title { font-size: 18px; font-weight: 600; line-height: 1.55; letter-spacing: -.2px; text-wrap: pretty; overflow-wrap: anywhere; }
+.award-title a { display: inline-block; min-height: 44px; padding-block: 8px; color: var(--heading); }
+.award-title a:hover, .award-title a:focus-visible { color: var(--link); }
+.award-title-zh { font-family: var(--font-zh); font-size: 14px; line-height: 1.85; color: var(--muted); }
+.award-honor { margin-top: 15px; font-size: 15px; font-weight: 700; color: var(--text); }
+.award-honor [lang="zh-CN"], .award-detail [lang="zh-CN"] { display: block; font-family: var(--font-zh); font-size: 13px; font-weight: 400; }
+.award-detail { margin-top: 8px; font-size: 13px; line-height: 1.85; color: var(--reading-text); }
 .publications-intro { font-size: 13px; }
 .publications-intro a { display: inline-block; padding: 10px 13px; min-height: 44px; line-height: 1.7; border: 1px solid var(--border); border-radius: 9px; color: var(--muted); background: var(--card); box-shadow: 0 2px 4px -2px var(--shadow); }
 .publications-intro a:hover, .publications-intro a:focus-visible { color: var(--link); border-color: var(--link); text-decoration: underline; }
@@ -224,15 +235,16 @@ h2 { font-size: 22px; font-weight: 600; line-height: 1.4; letter-spacing: -.5px;
   .service-list li { display: block; }
   .service-list li > span { display: block; margin-top: 5px; }
   .publications-heading { gap: 14px; }
-  .publications-heading h2 { font-size: 32px; }
+  .publications-heading h2, .awards-heading h2 { font-size: 32px; }
+  .award { padding: 22px; }
   .publication { padding: 22px; }
   .paper-title { font-size: 18px; }
-  .publications-page .profile { grid-template-columns: 54px minmax(0, 1fr); column-gap: 16px; padding: 16px 20px; }
-  .publications-page .profile-photo { width: 54px; padding: 2px; }
-  .publications-page .profile-name { font-size: 26px; }
-  .publications-page .profile-name [lang="zh-CN"] { display: inline; font-size: 18px; margin-left: 6px; }
-  .publications-page .profile-role { margin-top: 4px; }
-  .publications-page .profile-affiliation, .publications-page .profile-links { display: none; }
+  :is(.publications-page, .awards-page) .profile { grid-template-columns: 54px minmax(0, 1fr); column-gap: 16px; padding: 16px 20px; }
+  :is(.publications-page, .awards-page) .profile-photo { width: 54px; padding: 2px; }
+  :is(.publications-page, .awards-page) .profile-name { font-size: 26px; }
+  :is(.publications-page, .awards-page) .profile-name [lang="zh-CN"] { display: inline; font-size: 18px; margin-left: 6px; }
+  :is(.publications-page, .awards-page) .profile-role { margin-top: 4px; }
+  :is(.publications-page, .awards-page) .profile-affiliation, :is(.publications-page, .awards-page) .profile-links { display: none; }
 }
 @media (max-width: 530px) {
   .site-brand { display: none; }
@@ -247,8 +259,8 @@ h2 { font-size: 22px; font-weight: 600; line-height: 1.4; letter-spacing: -.5px;
   .profile-name { font-size: 27px; }
   .content-section { padding-inline: 20px; }
   .contact-line a { gap: 8px; }
-  .publications-page .profile { padding-inline: 16px; gap: 0 12px; }
-  .publications-page .profile-name { font-size: 23px; }
+  :is(.publications-page, .awards-page) .profile { padding-inline: 16px; gap: 0 12px; }
+  :is(.publications-page, .awards-page) .profile-name { font-size: 23px; }
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -269,11 +281,12 @@ h2 { font-size: 22px; font-weight: 600; line-height: 1.4; letter-spacing: -.5px;
   .page-layout { padding: 0; grid-template-columns: 175px minmax(0, 1fr); gap: 30px; min-height: 0; }
   .profile { grid-column: 1; grid-row: 1 / span 2; position: static; display: block; padding: 0; border: 0; background: none; box-shadow: none; margin: 0; }
   .profile-info { display: block; }
-  .profile-name, .publications-page .profile-name { font-size: 26px; }
-  .profile-photo, .publications-page .profile-photo { width: 100px; margin-bottom: 14px; }
-  .publications-page .profile-affiliation, .publications-page .profile-links { display: block; }
+  .profile-name, :is(.publications-page, .awards-page) .profile-name { font-size: 26px; }
+  .profile-photo, :is(.publications-page, .awards-page) .profile-photo { width: 100px; margin-bottom: 14px; }
+  :is(.publications-page, .awards-page) .profile-affiliation, :is(.publications-page, .awards-page) .profile-links { display: block; }
   .main-content { grid-column: 2; grid-row: 1; }
-  .home-panel, .year-papers { border: 0; box-shadow: none; }
+  .home-panel, .year-papers, .award-list { border: 0; box-shadow: none; }
+  .award { padding: 18px 0; break-inside: avoid; }
   .content-section { padding: 18px 0; }
   .publication { padding: 18px 0; }
   .publication article { display: block; }
