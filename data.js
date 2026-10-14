@@ -25,16 +25,16 @@ window.SITE_DATA = {
   ],
   awards: [
     {
-      title: { en: 'China Undergraduate Mathematical Contest in Modeling (CUMCM)', zh: '全国大学生数学建模竞赛' },
-      honor: { en: 'National Second Prize', zh: '全国二等奖' },
-      detail: { en: '', zh: '' },
-      url: 'https://www.mcm.edu.cn/'
-    },
-    {
       title: { en: '“Huawei Cup” China Post-Graduate Mathematical Contest in Modeling (CPMCM)', zh: '“华为杯”中国研究生数学建模竞赛' },
       honor: { en: 'National Second Prize', zh: '全国二等奖' },
       detail: { en: 'Top 4% in Huawei Special Problem B', zh: '华为专项 B 题排名前 4%' },
       url: 'https://cpipc.acge.org.cn/cw/hp/4'
+    },
+    {
+      title: { en: 'China Undergraduate Mathematical Contest in Modeling (CUMCM)', zh: '全国大学生数学建模竞赛' },
+      honor: { en: 'National Second Prize', zh: '全国二等奖' },
+      detail: { en: '', zh: '' },
+      url: 'https://www.mcm.edu.cn/'
     },
     {
       title: { en: 'China Computer Federation (CCF)', zh: '中国计算机学会（CCF）' },
