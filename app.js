@@ -184,6 +184,8 @@
     const horizontalYears = window.matchMedia('(max-width: 1099px)');
     let currentYear = null;
     let yearFrame = 0;
+    let revealYear = () => {};
+    let updateYearDock = () => {};
 
     const updateYearNavigation = () => {
       yearFrame = 0;
@@ -198,10 +200,15 @@
       // The final group may be too short to reach the reading line.
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
       if (maxScroll > 1 && window.scrollY >= maxScroll - 2) current = years.at(-1);
-      if (current === currentYear) return;
+      if (current === currentYear) {
+        updateYearDock();
+        return;
+      }
       years.forEach(({ link }) => { link.removeAttribute('aria-current'); });
       current.link.setAttribute('aria-current', 'location');
       currentYear = current;
+      revealYear(current);
+      updateYearDock();
     };
     const scheduleYearNavigation = () => {
       if (!yearFrame) yearFrame = window.requestAnimationFrame(updateYearNavigation);
@@ -216,6 +223,297 @@
       if (headerInner) yearLayoutObserver.observe(headerInner);
     }
     document.fonts?.ready.then(scheduleYearNavigation);
+    // Enhance the real anchor list without changing the no-script version.
+    const yearList = yearNavigation.querySelector('ul');
+    if (yearList && years.length) {
+      let revealPausedUntil = 0;
+      let pendingClick = 0;
+      let returnFocus = null;
+      let drag = null;
+      let suppressClickUntil = 0;
+      let lastTouch = null;
+      let centeredDock = window.scrollY > 1;
+      let horizontalWindowed = false;
+      yearNavigation.classList.add('is-enhanced');
+      yearNavigation.style.setProperty('--year-slots', Math.min(years.length, 5));
+      const cancelPendingClick = () => {
+        window.clearTimeout(pendingClick);
+        pendingClick = 0;
+      };
+      const pauseReveal = () => { revealPausedUntil = Date.now() + 1500; };
+      const editButton = document.createElement('button');
+      editButton.type = 'button';
+      editButton.className = 'year-edit-button';
+      editButton.setAttribute('aria-label', 'Jump to year');
+      editButton.setAttribute('aria-controls', 'publication-year-jump');
+      editButton.setAttribute('aria-expanded', 'false');
+      editButton.title = 'Enter a year';
+      editButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 5 5 5M4 20l4-1 12-12a2 2 0 0 0-5-5L3 14l-1 6Z"/></svg>';
+      const form = document.createElement('form');
+      form.id = 'publication-year-jump';
+      form.className = 'year-jump';
+      form.hidden = true;
+      form.noValidate = true;
+      form.setAttribute('aria-label', 'Jump to publication year');
+      form.innerHTML = `<label for="publication-year-input">Jump to year</label>
+        <div class="year-jump-fields"><input id="publication-year-input" type="text" inputmode="numeric" enterkeyhint="go" autocomplete="off" maxlength="4" placeholder="YYYY" aria-describedby="publication-year-message"><button type="submit">Go</button><button type="button" data-year-cancel aria-label="Cancel year entry">×</button></div>
+        <p id="publication-year-message" role="status" aria-live="polite"></p>`;
+      yearNavigation.append(editButton, form);
+      const input = form.querySelector('input');
+      const message = form.querySelector('[role="status"]');
+      const available = years.map(year => year.link.textContent.trim());
+      const availableText = available.join(', ');
+      const closeEditor = (restoreFocus = true) => {
+        form.hidden = true;
+        editButton.setAttribute('aria-expanded', 'false');
+        if (restoreFocus) (returnFocus || editButton).focus({ preventScroll: true });
+      };
+      const openEditor = trigger => {
+        cancelPendingClick();
+        returnFocus = trigger?.matches('a, button') ? trigger : editButton;
+        input.value = trigger?.matches('a') ? trigger.textContent.trim() : currentYear?.link.textContent.trim() || available[0];
+        input.removeAttribute('aria-invalid');
+        message.textContent = `Publication years: ${availableText}.`;
+        form.hidden = false;
+        editButton.setAttribute('aria-expanded', 'true');
+        input.focus({ preventScroll: true });
+        input.select();
+      };
+      editButton.addEventListener('click', () => form.hidden ? openEditor(editButton) : closeEditor());
+      form.querySelector('[data-year-cancel]').addEventListener('click', () => closeEditor());
+      form.addEventListener('submit', event => {
+        event.preventDefault();
+        const value = input.value.trim();
+        const target = /^\d{4}$/.test(value) && years.find(year => year.link.textContent.trim() === value);
+        if (!target) {
+          input.setAttribute('aria-invalid', 'true');
+          message.textContent = /^\d{4}$/.test(value)
+            ? `No publications in ${value}. Available years: ${availableText}.`
+            : `Enter a four-digit year. Available years: ${availableText}.`;
+          input.focus({ preventScroll: true });
+          return;
+        }
+        closeEditor(false);
+        revealPausedUntil = 0;
+        target.link.click();
+        target.heading.focus({ preventScroll: true });
+      });
+      input.addEventListener('input', () => { input.removeAttribute('aria-invalid'); });
+      yearNavigation.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && !form.hidden) {
+          event.preventDefault();
+          closeEditor();
+          return;
+        }
+        const index = years.findIndex(year => year.link === event.target);
+        if (index < 0) return;
+        if (event.key === 'F2') {
+          event.preventDefault();
+          openEditor(event.target);
+          return;
+        }
+        if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+        const previousKey = horizontalYears.matches ? 'ArrowLeft' : 'ArrowUp';
+        const nextKey = horizontalYears.matches ? 'ArrowRight' : 'ArrowDown';
+        const next = event.key === 'Home' ? 0 : event.key === 'End' ? years.length - 1
+          : event.key === previousKey ? Math.max(0, index - 1)
+          : event.key === nextKey ? Math.min(years.length - 1, index + 1) : -1;
+        if (next < 0) return;
+        event.preventDefault();
+        pauseReveal();
+        years[next].link.focus({ preventScroll: true });
+        revealYear(years[next], true);
+      });
+      document.addEventListener('pointerdown', event => {
+        if (!form.hidden && !yearNavigation.contains(event.target)) closeEditor(false);
+      });
+      yearNavigation.addEventListener('focusout', event => {
+        if (!form.hidden && event.relatedTarget && !yearNavigation.contains(event.relatedTarget)) closeEditor(false);
+      });
+      years.forEach(({ link }) => {
+        link.title = 'Click to jump; double-click or press F2 to enter a year';
+        link.draggable = false;
+      });
+      yearNavigation.addEventListener('dblclick', event => {
+        if (form.contains(event.target) || editButton.contains(event.target)) return;
+        event.preventDefault();
+        openEditor(event.target.closest('a'));
+      });
+      yearNavigation.addEventListener('click', event => {
+        const link = event.target.closest('a');
+        if (!link || !yearList.contains(link) || event.button !== 0 || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
+        if (event.detail === 0) {
+          cancelPendingClick();
+          revealPausedUntil = 0;
+          revealYear(years.find(year => year.link === link), true);
+          return;
+        }
+        event.preventDefault();
+        cancelPendingClick();
+        if (Date.now() < suppressClickUntil || !form.hidden) return;
+        // A short pointer-only delay keeps the bar still for double-click/tap.
+        if (event.detail > 1) return;
+        pendingClick = window.setTimeout(() => {
+          pendingClick = 0;
+          revealPausedUntil = 0;
+          link.click();
+        }, 400);
+      });
+      yearList.addEventListener('pointerdown', event => {
+        pauseReveal();
+        cancelPendingClick();
+        if (!event.isPrimary || event.button !== 0) return;
+        drag = { id: event.pointerId, type: event.pointerType, x: event.clientX, y: event.clientY,
+          left: yearList.scrollLeft, top: yearList.scrollTop, moved: false, captured: false };
+      });
+      yearList.addEventListener('pointermove', event => {
+        if (!drag || drag.id !== event.pointerId) return;
+        const dx = event.clientX - drag.x;
+        const dy = event.clientY - drag.y;
+        const distance = horizontalYears.matches ? dx : dy;
+        if (Math.hypot(dx, dy) > 6) drag.moved = true;
+        if (drag.type !== 'mouse' || !drag.moved) return;
+        if (!drag.captured) {
+          yearList.setPointerCapture(event.pointerId);
+          drag.captured = true;
+          yearList.classList.add('is-dragging');
+        }
+        event.preventDefault();
+        if (horizontalYears.matches) yearList.scrollLeft = drag.left - distance;
+        else yearList.scrollTop = drag.top - distance;
+      });
+      const endDrag = event => {
+        if (!drag || drag.id !== event.pointerId) return;
+        if (drag.moved) {
+          suppressClickUntil = Date.now() + 500;
+          lastTouch = null;
+        } else if (drag.type === 'touch' && event.type === 'pointerup') {
+          const link = event.target.closest('a');
+          const now = Date.now();
+          if (link && lastTouch?.link === link && now - lastTouch.time < 400) {
+            suppressClickUntil = now + 500;
+            lastTouch = null;
+            openEditor(link);
+          } else lastTouch = { link, time: now };
+        }
+        if (drag.captured && yearList.hasPointerCapture(drag.id)) yearList.releasePointerCapture(drag.id);
+        drag = null;
+        yearList.classList.remove('is-dragging');
+      };
+      window.addEventListener('pointerup', endDrag);
+      window.addEventListener('pointercancel', endDrag);
+      window.addEventListener('blur', () => {
+        cancelPendingClick();
+        if (drag?.captured && yearList.hasPointerCapture(drag.id)) yearList.releasePointerCapture(drag.id);
+        drag = null;
+        lastTouch = null;
+        yearList.classList.remove('is-dragging');
+      });
+      yearList.addEventListener('lostpointercapture', () => { drag = null; yearList.classList.remove('is-dragging'); });
+      yearNavigation.addEventListener('wheel', event => {
+        pauseReveal();
+        if (!horizontalYears.matches || !form.hidden || event.ctrlKey || Math.abs(event.deltaX) >= Math.abs(event.deltaY)) return;
+        const delta = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? yearList.clientWidth : 1);
+        const max = yearList.scrollWidth - yearList.clientWidth;
+        if (max <= 0 || delta < 0 && yearList.scrollLeft <= 0 || delta > 0 && yearList.scrollLeft >= max - 1) return;
+        event.preventDefault();
+        yearList.scrollLeft += delta;
+      }, { passive: false });
+      revealYear = (year, force = false) => {
+        if (!year || !force && (!form.hidden || drag || Date.now() < revealPausedUntil)) return;
+        const area = yearList.getBoundingClientRect();
+        const item = year.link.getBoundingClientRect();
+        if (horizontalYears.matches) {
+          yearList.scrollLeft += (item.left + item.right - area.left - area.right) / 2;
+        } else {
+          yearList.scrollTop += (item.top + item.bottom - area.top - area.bottom) / 2;
+        }
+      };
+      updateYearDock = () => {
+        if (horizontalYears.matches) {
+          const bounds = yearNavigation.getBoundingClientRect();
+          const contentBounds = (publicationList || yearNavigation).getBoundingClientRect();
+          const center = (contentBounds.left + contentBounds.right) / 2;
+          const listBounds = yearList.getBoundingClientRect();
+          const activeBounds = (currentYear || years[0]).link.getBoundingClientRect();
+          const anchor = horizontalWindowed ? listBounds.width / 2
+            : activeBounds.left - listBounds.left + activeBounds.width / 2;
+          yearNavigation.style.setProperty('--year-list-offset',
+            `${center - bounds.left - anchor}px`);
+        }
+        if (window.scrollY <= 1) centeredDock = false;
+        else if (window.scrollY > 28) centeredDock = true;
+        const floating = !horizontalYears.matches && centeredDock;
+        if (floating) {
+          const bounds = yearNavigation.parentElement.getBoundingClientRect();
+          const width = yearNavigation.offsetWidth;
+          const headerBottom = headerInner?.getBoundingClientRect().bottom || 0;
+          const navBounds = yearNavigation.getBoundingClientRect();
+          const listBounds = yearList.getBoundingClientRect();
+          const activeBounds = (currentYear || years[0]).link.getBoundingClientRect();
+          const overflowing = yearList.scrollHeight > yearList.clientHeight + 1;
+          // Short lists move as a whole, keeping every year visible without empty slots.
+          // Overflowing lists keep a steady window while the active year scrolls inside it.
+          const anchor = overflowing
+            ? listBounds.top - navBounds.top + listBounds.height / 2
+            : activeBounds.top - navBounds.top + activeBounds.height / 2;
+          const readingCenter = (headerBottom + window.innerHeight) / 2;
+          const top = Math.max(headerBottom + 12, Math.min(readingCenter - anchor,
+            window.innerHeight - yearNavigation.offsetHeight - 12));
+          yearNavigation.style.setProperty('--year-dock-left', `${bounds.right - width}px`);
+          yearNavigation.style.setProperty('--year-dock-top', `${top}px`);
+        }
+        yearNavigation.classList.toggle('is-floating', floating);
+      };
+      const measureYearWindow = () => {
+        if (horizontalYears.matches) yearNavigation.classList.remove('is-floating');
+        // Clear padding from the previous axis before measuring after a resize.
+        yearList.style.setProperty('--year-center-space', '0px');
+        const item = years[0].link.getBoundingClientRect();
+        if (horizontalYears.matches) {
+          // Center the current year on the paper column, independently of the edit button.
+          const bounds = yearNavigation.getBoundingClientRect();
+          const contentBounds = (publicationList || yearNavigation).getBoundingClientRect();
+          const center = (contentBounds.left + contentBounds.right) / 2;
+          const listGap = parseFloat(getComputedStyle(yearList).columnGap) || 0;
+          const controlGap = parseFloat(getComputedStyle(yearNavigation).columnGap) || 0;
+          const sideRoom = Math.min(center - bounds.left, bounds.right - center - editButton.offsetWidth - controlGap);
+          const slots = Math.min(years.length, 5);
+          const width = Math.min(slots * item.width + (slots - 1) * listGap, Math.max(item.width, sideRoom * 2));
+          yearNavigation.style.setProperty('--year-list-width', `${width}px`);
+          // A compact list may move into the column gap, but never over the profile.
+          // Check both end years so changing the active year cannot change modes.
+          const profileBounds = document.querySelector('.profile')?.getBoundingClientRect();
+          const safeLeft = profileBounds && profileBounds.right < bounds.left
+            ? Math.max(12, profileBounds.right + 2) : 12;
+          const safeRight = document.documentElement.clientWidth - 12;
+          const naturalWidth = years.length * item.width + (years.length - 1) * listGap;
+          const canMoveWholeList = center - naturalWidth + item.width / 2 >= safeLeft
+            && center - item.width / 2 + naturalWidth + editButton.offsetWidth + controlGap <= safeRight;
+          horizontalWindowed = naturalWidth > width + 1 || !canMoveWholeList;
+        }
+        const size = horizontalYears.matches ? yearList.clientWidth : yearList.clientHeight;
+        const itemSize = horizontalYears.matches ? item.width : item.height;
+        // Only lists that can move safely as a whole omit the centering space.
+        const needsCentering = horizontalYears.matches
+          ? horizontalWindowed
+          : yearList.scrollHeight > yearList.clientHeight + 1;
+        const space = needsCentering ? Math.max(0, (size - itemSize) / 2) : 0;
+        yearList.style.setProperty('--year-center-space', `${space}px`);
+        updateYearDock();
+        revealYear(currentYear);
+      };
+      if (typeof ResizeObserver !== 'undefined') {
+        const windowObserver = new ResizeObserver(measureYearWindow);
+        windowObserver.observe(yearList, { box: 'border-box' });
+      }
+      window.addEventListener('resize', measureYearWindow);
+      window.addEventListener('pageshow', measureYearWindow);
+      document.fonts?.ready.then(measureYearWindow);
+      measureYearWindow();
+      window.addEventListener('pagehide', cancelPendingClick);
+    }
+
     updateYearNavigation();
   }
 

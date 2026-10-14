@@ -133,24 +133,53 @@ h2 { font-size: 22px; font-weight: 600; line-height: 1.4; letter-spacing: -.5px;
 .award-honor [lang="zh-CN"], .award-detail [lang="zh-CN"] { display: block; font-family: var(--font-zh); font-size: 14px; font-weight: 400; }
 .award-detail { margin-top: 8px; font-size: 14px; line-height: 1.85; color: var(--reading-text); }
 .publications-intro { font-size: 13px; }
-.publications-intro a { display: inline-block; padding: 10px 13px; min-height: 44px; line-height: 1.7; border: 1px solid var(--border); border-radius: 9px; color: var(--muted); background: var(--card); box-shadow: 0 2px 4px -2px var(--shadow); }
-.publications-intro a:hover, .publications-intro a:focus-visible { color: var(--link); border-color: var(--link); text-decoration: underline; }
+.publications-intro a { display: inline-block; padding: 10px 0; min-height: 44px; line-height: 1.7; border: 0; color: var(--link); background: transparent; box-shadow: none; }
+.publications-intro a:hover, .publications-intro a:focus-visible { text-decoration: underline; }
 .publications-page { --year-rail-overhang: clamp(26px, calc((100vw - 1068px) / 2 - 16px), 68px); }
-.publications-page .publications-heading { padding-right: calc(88px - var(--year-rail-overhang)); }
-.publication-browser { display: grid; grid-template-columns: minmax(0, 1fr) 68px; column-gap: 20px; align-items: start; margin-right: calc(-1 * var(--year-rail-overhang)); }
+.publications-page .publications-heading { padding-right: calc(72px - var(--year-rail-overhang)); }
+.publication-browser { --year-heading-size: 15px; --year-heading-line-height: 1.7; --year-heading-gap: 14px; display: grid; grid-template-columns: minmax(0, 1fr) 60px; column-gap: 12px; align-items: start; margin-right: calc(-1 * var(--year-rail-overhang)); }
 #publication-list { grid-column: 1; grid-row: 1; min-width: 0; }
-.publication-years { grid-column: 2; grid-row: 1; position: sticky; top: var(--profile-top); align-self: start; z-index: 10; }
+.publication-years { display: flex; flex-direction: column; gap: 2px; min-width: 0; grid-column: 2; grid-row: 1; position: sticky; top: var(--profile-top); align-self: start; z-index: 10; }
 .publication-years[hidden] { display: none; }
+@media (min-width: 1100px) {
+  /* Align the resting rail with the first paper card below its year heading. */
+  .publication-years:not(.is-floating) { margin-top: calc(var(--year-heading-size) * var(--year-heading-line-height) + var(--year-heading-gap)); }
+  .publication-years.is-floating { position: fixed; left: var(--year-dock-left); top: var(--year-dock-top); width: 60px; }
+  .publication-years.is-floating .year-jump { max-height: calc(100dvh - var(--year-dock-top) - 16px); }
+}
 /* Compact painted frames retain a separate 44px hit area. */
-.publication-years ul { position: relative; isolation: isolate; display: flex; flex-direction: column; list-style: none; gap: 3px; padding: 0 4px; }
+.publication-years ul { position: relative; isolation: isolate; display: flex; flex-direction: column; list-style: none; gap: 2px; padding: 0 2px; min-width: 0; max-height: min(320px, calc(100dvh - var(--profile-top) - 64px)); overflow: auto; scrollbar-width: thin; }
 .publication-years ul::before { content: ""; position: absolute; z-index: -1; inset: 2px 0; border-radius: 9px; background: var(--nav); box-shadow: inset 0 1px 2px var(--shadow); pointer-events: none; }
-.publication-years a { position: relative; isolation: isolate; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 60px; padding: 8px 12px; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--muted); }
+.publication-years.is-enhanced ul { height: min(calc(var(--year-slots) * 46px - 2px), max(44px, calc((100dvh - var(--header-height)) / 2 - 36px))); max-height: none; padding-block: var(--year-center-space, 0px); border-radius: 9px; background: var(--nav); }
+.publication-years.is-enhanced ul::before { content: none; }
+.publication-years a { position: relative; isolation: isolate; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; width: 100%; padding: 8px 6px; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--muted); text-decoration: none; }
 .publication-years a:focus-visible { outline-offset: -2px; border-radius: 6px; }
 .publication-years a::before { content: ""; position: absolute; z-index: -1; inset: 5px 0; border-radius: 6px; pointer-events: none; transition: background-color 180ms ease, box-shadow 180ms ease; }
-.publication-years a:hover, .publication-years a:focus-visible, .publication-years a[aria-current] { color: var(--link); text-decoration: none; }
-.publication-years a:hover::before, .publication-years a:focus-visible::before, .publication-years a[aria-current]::before { background: var(--card); box-shadow: 0 1px 3px var(--shadow); }
+/* Selection, hover and keyboard focus must remain visually distinct. */
+.publication-years a:focus-visible { color: var(--text); text-decoration: none; }
+@media (hover: hover) and (pointer: fine) {
+  .publication-years a:hover:not([aria-current]) { color: var(--text); }
+}
+.publication-years a[aria-current] { color: var(--link); text-decoration: none; }
+.publication-years a[aria-current]::before { background: var(--card); box-shadow: 0 1px 3px var(--shadow); }
+/* Controls are added only when JavaScript is available; anchors remain usable without it. */
+.publication-years ul.is-dragging { cursor: grabbing; user-select: none; }
+.publication-years li { flex: 0 0 auto; }
+.year-edit-button { display: grid; place-items: center; flex: 0 0 44px; align-self: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 6px; background: transparent; color: var(--muted); cursor: pointer; }
+.year-edit-button svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.year-edit-button:hover, .year-edit-button[aria-expanded="true"] { color: var(--link); background: var(--card); }
+.year-edit-button:focus-visible, .year-jump :focus-visible { outline: 2px solid var(--link); outline-offset: -2px; }
+.year-jump { position: absolute; z-index: 2; top: 0; right: calc(100% + 8px); width: min(280px, calc(100vw - 32px)); max-height: calc(100dvh - var(--profile-top) - 16px); overflow-y: auto; padding: 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); box-shadow: 0 6px 22px #2039571c; }
+.year-jump[hidden] { display: none; }
+.year-jump label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+.year-jump-fields { display: flex; gap: 6px; }
+.year-jump input { width: 0; min-width: 0; flex: 1; min-height: 44px; padding: 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); color: var(--text); font: inherit; font-size: 16px; font-variant-numeric: tabular-nums; }
+.year-jump input[aria-invalid="true"] { border-color: #a32929; }
+.year-jump button { flex: 0 0 44px; min-height: 44px; padding: 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); color: var(--link); font: inherit; font-size: 14px; cursor: pointer; }
+.year-jump button[type="submit"] { background: var(--action); border-color: var(--action); color: white; }
+.year-jump p { margin-top: 8px; font-size: 13px; line-height: 1.6; color: var(--reading-text); }
 .publication-year + .publication-year { margin-top: 28px; }
-.publication-year > h3 { display: flex; align-items: center; gap: 14px; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--muted); margin-bottom: 14px; }
+.publication-year > h3 { display: flex; align-items: center; gap: 14px; font-size: var(--year-heading-size); line-height: var(--year-heading-line-height); font-weight: 600; font-variant-numeric: tabular-nums; color: var(--muted); margin-bottom: var(--year-heading-gap); }
 .publication-year > h3::after { content: ""; height: 1px; flex: 1; background: var(--border); }
 .year-papers { list-style: none; padding: 0; border: 1px solid var(--border); border-radius: 16px; background: var(--card); box-shadow: 0 3px 8px -6px var(--shadow); }
 .publication { padding: 25px; transition: background-color 180ms ease; }
@@ -180,10 +209,15 @@ h2 { font-size: 22px; font-weight: 600; line-height: 1.4; letter-spacing: -.5px;
 @media (max-width: 1099px) {
   /* A sticky horizontal strip preserves reading width on smaller screens. */
   .publications-page .publications-heading { padding-right: 0; }
-  .publication-browser { display: block; margin-right: 0; }
-  .publication-years { display: flex; justify-content: flex-end; top: var(--sticky-header-height); margin-bottom: 18px; padding-block: 4px; background: var(--background); transition: top 180ms ease, background-color 180ms ease; }
+  .publications-heading { margin-bottom: 6px; }
+  .publication-browser { --year-heading-gap: 10px; display: block; margin-right: 0; }
+  .publication-years { flex-direction: row; align-items: center; justify-content: center; margin-left: 0; top: var(--sticky-header-height); margin-bottom: 2px; padding-block: 0; background: var(--background); transition: top 180ms ease, background-color 180ms ease; }
   .publication-years ul::before { background: transparent; box-shadow: none; }
-  .publication-years ul { flex-direction: row; max-width: 100%; overflow-x: auto; scrollbar-width: thin; }
+  .publication-years ul { flex: 0 1 auto; flex-direction: row; width: max-content; max-width: 100%; max-height: none; padding-inline: 0; overflow-x: auto; overflow-y: hidden; }
+  .publication-years a { justify-content: center; width: 64px; min-width: 64px; padding-inline: 12px; }
+  .publication-years.is-enhanced { justify-content: flex-start; }
+  .publication-years.is-enhanced ul { flex: 0 0 auto; width: var(--year-list-width); max-width: calc(100% - 46px); height: 44px; margin-left: var(--year-list-offset, 0px); padding-block: 0; padding-inline: var(--year-center-space, 0px); background: transparent; }
+  .year-jump { top: calc(100% + 6px); left: 0; right: auto; max-height: calc(100dvh - var(--sticky-header-height) - 64px); }
   .publication-years li { flex: 0 0 auto; }
   .publication-year > h3 { scroll-margin-top: 44px; }
   @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
@@ -257,8 +291,14 @@ h2 { font-size: 22px; font-weight: 600; line-height: 1.4; letter-spacing: -.5px;
   .bio-zh { font-size: 15px; }
   .service-list li { display: block; }
   .service-list li > span { display: block; margin-top: 5px; }
-  .publications-heading { gap: 14px; }
-  .publications-heading h2, .awards-heading h2 { font-size: 32px; }
+  .publications-heading { flex-direction: row; flex-wrap: nowrap; align-items: center; gap: 8px; margin-bottom: 1px; }
+  .publications-heading h2 { font-size: clamp(26px, 7.5vw, 32px); }
+  .publications-intro { flex: 0 0 auto; }
+  .publications-intro a { white-space: nowrap; }
+  .publications-intro a:focus-visible { outline-offset: -2px; }
+  .publication-years { margin-bottom: 1px; }
+  .publication-browser { --year-heading-gap: 8px; }
+  .awards-heading h2 { font-size: 32px; }
   .award { padding: 22px; }
   .publication { padding: 22px; }
   .paper-title { font-size: 18px; }
