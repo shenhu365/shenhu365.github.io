@@ -20,8 +20,8 @@ window.SITE_DATA = {
     }
   },
   services: [
-    { venue: 'IJCAI', year: 2026, role: { en: 'Program Committee Member', zh: '程序委员会成员' } },
-    { venue: 'ICLR', year: 2027, role: { en: 'Reviewer', zh: '审稿人' } }
+    { venue: 'ICLR', year: 2027, role: { en: 'Reviewer', zh: '审稿人' } },
+    { venue: 'IJCAI', year: 2026, role: { en: 'Program Committee Member', zh: '程序委员会成员' } }
   ],
   education: [
     { period: '2023 — Present', periodZh: '2023 — 至今', degree: 'Ph.D.', degreeZh: '博士', field: 'Computer Science & Technology', fieldZh: '计算机科学与技术' },

@@ -2,7 +2,7 @@
 
 Verified on 12 October 2026. This file records the provenance of homepage content; it is not a complete publication list.
 
-本文件仅供维护时查阅，记录信息来源与取舍，不参与页面渲染。个人资料与论文展示以 `data.js` 为准，人物主页与姓名别名以 `people.js` 为准；修改本文件不会改变网页，各文件不会自动同步。日常操作见 [README.md](README.md)，智能体接手与文档同步约定见 [AGENTS.md](AGENTS.md)。
+本文件仅供维护时查阅，记录信息来源与取舍，不参与页面渲染。个人资料与论文展示以 `data.js` 为准，人物主页与姓名别名以 `people.js` 为准；修改本文件不会改变网页，各文件不会自动同步。日常操作见 [MAINTENANCE.md](MAINTENANCE.md)，智能体接手与文档同步约定见 [AGENTS.md](AGENTS.md)。
 
 ## Profile: user-provided details take priority
 
@@ -87,11 +87,11 @@ Some third-party aggregators label this work ICLR 2026. That label was not verif
 
 ## Presentation
 
-The redesigned UI follows the user-provided `shen-homepage-source.zip` supplied on 14 October 2026, using its light blue-gray background, white panels, segmented navigation and font assets as visual references. The existing profile text, academic service entries, publication metadata, person links and local portrait remain the content sources; the reference package does not override these facts or the shared publication renderer. Font provenance and original licenses are documented in [assets/fonts/README.md](assets/fonts/README.md). The redesign is maintained on `codex/ui-redesign`, separately from the minimal interface retained on `main`.
+The redesigned UI follows the user-provided `shen-homepage-source.zip` supplied on 14 October 2026, using its light blue-gray background, white panels, segmented navigation and font assets as visual references. The existing profile text, academic service entries, publication metadata, person links and local portrait remain the content sources; the reference package does not override these facts or the shared publication renderer. Font provenance and original licenses are documented in [assets/fonts/README.md](assets/fonts/README.md). Current branch and deployment conventions are maintained in [MAINTENANCE.md](MAINTENANCE.md) and [AGENTS.md](AGENTS.md).
 
 The homepage presents an English biography followed directly by its Chinese version, a separate Publications summary section, academic service, and an email-only Contact section. The Publications summary reads “I have published papers in IJCAI, AAAI, IJCV, …” and includes a View publications link. Retain the introductory phrase followed by venue abbreviations and the ellipsis; do not reduce it to a bare venue list. The named venues follow the existing AMR-LLM (IJCAI), Signal Enhancement (AAAI), and Focus Depth Anything (IJCV) entries documented above. The ellipsis is a presentation choice, not evidence for additional papers, venues, publication statuses, counts, or rankings. The summary is maintained only in `index.html` under `.publication-summary`.
 
-Individual publications appear on the separate Publications page as text entries with original publication links. No locally generated citation exports are provided.
+Individual publications appear on the separate Publications page as text entries with original publication links.
 
 The user supplied the academic service entries **IJCAI 2026 reviewer** and **ICLR 2027 reviewer** on 13 October 2026. These entries are based on the user's statement, not an independent verification of reviewer lists.
 

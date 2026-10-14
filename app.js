@@ -95,8 +95,8 @@
   };
 
   function profileLink(label, url, icon, isExternal = true) {
-    const arrow = icon === 'email' ? '' : '<span class="profile-link-arrow" aria-hidden="true"> ↗</span>';
-    return `<li${icon === 'email' ? ' class="profile-email"' : ''}><a href="${escape(siteUrl(url))}" ${isExternal ? external : ''}><svg class="link-icon" viewBox="0 0 24 24" aria-hidden="true">${icons[icon]}</svg><span class="profile-link-label">${escape(label)}${arrow}</span></a></li>`;
+    const arrow = '<span class="profile-link-arrow" aria-hidden="true">↗</span>';
+    return `<li${icon === 'email' ? ' class="profile-email"' : ''}><a href="${escape(siteUrl(url))}" ${isExternal ? external : ''}><svg class="link-icon" viewBox="0 0 24 24" aria-hidden="true">${icons[icon]}</svg><span class="profile-link-label">${escape(label)}</span>${arrow}</a></li>`;
   }
 
   const fields = {
@@ -120,8 +120,8 @@
   });
 
   const links = [
-    profileLink('Google Scholar', profile.scholar, 'scholar'),
     profile.github ? profileLink('GitHub', profile.github, 'github') : '',
+    profileLink('Google Scholar', profile.scholar, 'scholar'),
     profileLink('University profile', profile.institution, 'university'),
     profile.cv ? profileLink('CV', profile.cv, 'cv') : '',
     profileLink(profile.email, `mailto:${profile.email}`, 'email', false)
@@ -146,7 +146,7 @@
 
   const serviceList = document.querySelector('[data-services]');
   if (serviceList) {
-    serviceList.innerHTML = data.services.map(service =>
+    serviceList.innerHTML = [...data.services].sort((a, b) => b.year - a.year).map(service =>
       `<li><strong>${escape(service.venue)} ${escape(service.year)}</strong><span>${escape(service.role.en)}</span></li>`
     ).join('');
   }
