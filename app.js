@@ -24,14 +24,11 @@
   window.addEventListener('hashchange', updateNavigation);
   window.addEventListener('pageshow', updateNavigation);
 
-  // Contract the navigation's surface, never its document space or the sidebar.
+  // Contract the fixed navigation, keeping body spacing and the sidebar stable.
   const header = document.querySelector('.site-header');
   if (header) {
     const scrollPosition = () => Math.max(0, Math.min(window.scrollY,
       Math.max(0, document.documentElement.scrollHeight - window.innerHeight)));
-    let previousScroll = scrollPosition();
-    let direction = 0;
-    let travel = 0;
     let compact = false;
     let frame = 0;
     const setCompact = value => {
@@ -42,33 +39,24 @@
     const updateHeader = () => {
       frame = 0;
       const scroll = scrollPosition();
-      const delta = scroll - previousScroll;
-      previousScroll = scroll;
-      if (scroll <= 12) {
-        direction = 0;
-        travel = 0;
-        setCompact(false);
-      } else if (delta !== 0) {
-        const nextDirection = Math.sign(delta);
-        travel = nextDirection === direction ? travel + Math.abs(delta) : Math.abs(delta);
-        direction = nextDirection;
-        if (direction > 0 && scroll > 28 && travel >= 16) setCompact(true);
-        else if (direction < 0 && travel >= 8) setCompact(false);
-      }
+      header.classList.toggle('is-scrolled', scroll > 1);
+      // Keep the compact state while scrolling back; expand only at the top.
+      if (scroll <= 1) setCompact(false);
+      else if (scroll > 28) setCompact(true);
     };
     const resetHeader = () => {
       if (frame) window.cancelAnimationFrame(frame);
       frame = 0;
-      previousScroll = scrollPosition();
-      direction = 0;
-      travel = 0;
-      setCompact(false);
+      // Restoring or resizing a scrolled page must not expand the navigation.
+      setCompact(scrollPosition() > 1);
+      updateHeader();
     };
     window.addEventListener('scroll', () => {
       if (!frame) frame = window.requestAnimationFrame(updateHeader);
     }, { passive: true });
     window.addEventListener('resize', resetHeader);
     window.addEventListener('pageshow', resetHeader);
+    resetHeader();
   }
 
   const data = window.SITE_DATA;
@@ -107,7 +95,8 @@
   };
 
   function profileLink(label, url, icon, isExternal = true) {
-    return `<li${icon === 'email' ? ' class="profile-email"' : ''}><a href="${escape(siteUrl(url))}" ${isExternal ? external : ''}><svg class="link-icon" viewBox="0 0 24 24" aria-hidden="true">${icons[icon]}</svg><span>${escape(label)}</span></a></li>`;
+    const arrow = icon === 'email' ? '' : '<span class="profile-link-arrow" aria-hidden="true"> ↗</span>';
+    return `<li${icon === 'email' ? ' class="profile-email"' : ''}><a href="${escape(siteUrl(url))}" ${isExternal ? external : ''}><svg class="link-icon" viewBox="0 0 24 24" aria-hidden="true">${icons[icon]}</svg><span class="profile-link-label">${escape(label)}${arrow}</span></a></li>`;
   }
 
   const fields = {
@@ -131,11 +120,11 @@
   });
 
   const links = [
-    profileLink(profile.email, `mailto:${profile.email}`, 'email', false),
     profileLink('Google Scholar', profile.scholar, 'scholar'),
     profile.github ? profileLink('GitHub', profile.github, 'github') : '',
     profileLink('University profile', profile.institution, 'university'),
-    profile.cv ? profileLink('CV', profile.cv, 'cv') : ''
+    profile.cv ? profileLink('CV', profile.cv, 'cv') : '',
+    profileLink(profile.email, `mailto:${profile.email}`, 'email', false)
   ].join('');
   document.querySelectorAll('[data-profile-links]').forEach(element => { element.innerHTML = links; });
   document.querySelectorAll('[data-email]').forEach(element => {
@@ -172,6 +161,18 @@
       yearNavigation.hidden = data.publications.length === 0;
     }
   }
+
+  // Highlight the native year anchor without intercepting navigation or history.
+  const updateYearNavigation = () => {
+    const links = [...document.querySelectorAll('#publication-years a')];
+    const current = links.find(link => link.hash === window.location.hash)
+      || (!window.location.hash ? links[0] : null);
+    links.forEach(link => { link.removeAttribute('aria-current'); });
+    if (current) current.setAttribute('aria-current', 'location');
+  };
+  updateYearNavigation();
+  window.addEventListener('hashchange', updateYearNavigation);
+  window.addEventListener('pageshow', updateYearNavigation);
 
   document.querySelectorAll('[data-person]').forEach(element => {
     const name = element.dataset.person || element.textContent.trim();

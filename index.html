@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#ffffff">
+  <meta name="theme-color" content="#f4f6fb">
   <meta name="description" content="Shen Hu (胡深), Ph.D. student at the Institute of Big Data Science and Industry, Shanxi University. LLM-driven evolutionary data intelligence and AI scientist agent systems.">
   <meta property="og:title" content="Shen Hu (胡深) | Academic Homepage">
   <meta property="og:description" content="Ph.D. student at Shanxi University. Research in LLM-driven evolutionary data intelligence and AI scientist agent systems.">
   <meta property="og:type" content="website">
   <title>Shen Hu (胡深) | Academic Homepage</title>
   <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
-  <link rel="preload" href="./assets/fonts/source-serif-4-roman.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="./assets/fonts/source-sans-3-roman.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="./assets/fonts/manrope.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="./assets/fonts/noto-sans-sc-subset.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="./styles.css">
   <script src="./people.js" defer></script>
   <script src="./data.js" defer></script>
@@ -21,12 +21,15 @@
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header">
-    <nav class="site-nav page-width" aria-label="Main navigation">
+    <div class="header-inner page-width">
+      <a class="site-brand" href="./" aria-label="Shen Hu — Home"><span class="brand-mark" aria-hidden="true">SH</span></a>
+    <nav class="site-nav" aria-label="Main navigation">
       <a href="./" aria-current="page">Home</a>
       <a href="./publications/">Publications</a>
       <a href="#service">Service</a>
       <a href="#contact">Contact</a>
     </nav>
+    </div>
   </header>
   <div class="page-layout page-width">
     <aside class="profile" aria-label="Shen Hu's profile">
@@ -36,14 +39,15 @@
         <p class="profile-role">Ph.D. student</p>
         <p class="profile-affiliation"><span data-profile="affiliationEn"><span class="affiliation-institute">Institute of Big Data Science and Industry</span><span class="affiliation-university">Shanxi University</span></span><span class="affiliation-zh" lang="zh-CN" data-profile="affiliationZh">山西大学大数据科学与产业研究院</span></p>
         <ul class="profile-links" data-profile-links>
-          <li class="profile-email"><a href="mailto:hushen@alu.sxu.edu.cn">hushen@alu.sxu.edu.cn</a></li>
-          <li><a href="https://scholar.google.com/citations?user=Q31HAAcAAAAJ" target="_blank" rel="noopener noreferrer">Google Scholar</a></li>
-          <li><a href="https://github.com/shenhu365" target="_blank" rel="noopener noreferrer">GitHub</a></li>
-          <li><a href="https://dig.sxu.edu.cn/xwz/td/bss/2023j/b91acaa0e0754523bf255812c80f2d0d.htm" target="_blank" rel="noopener noreferrer">University profile</a></li>
+          <li><a href="https://scholar.google.com/citations?user=Q31HAAcAAAAJ" target="_blank" rel="noopener noreferrer"><span class="profile-link-label">Google Scholar<span class="profile-link-arrow" aria-hidden="true"> ↗</span></span></a></li>
+          <li><a href="https://github.com/shenhu365" target="_blank" rel="noopener noreferrer"><span class="profile-link-label">GitHub<span class="profile-link-arrow" aria-hidden="true"> ↗</span></span></a></li>
+          <li><a href="https://dig.sxu.edu.cn/xwz/td/bss/2023j/b91acaa0e0754523bf255812c80f2d0d.htm" target="_blank" rel="noopener noreferrer"><span class="profile-link-label">University profile<span class="profile-link-arrow" aria-hidden="true"> ↗</span></span></a></li>
+          <li class="profile-email"><a href="mailto:hushen@alu.sxu.edu.cn"><span class="profile-link-label">hushen@alu.sxu.edu.cn</span></a></li>
         </ul>
       </div>
     </aside>
     <main id="main" class="main-content">
+      <div class="home-panel">
       <section id="about" class="content-section" aria-labelledby="about-title">
         <h2 id="about-title">About Me</h2>
         <div class="bio-en" lang="en">
@@ -69,6 +73,7 @@
         <h2 id="contact-title">Contact</h2>
         <p class="contact-line"><a data-email href="mailto:hushen@alu.sxu.edu.cn">hushen@alu.sxu.edu.cn</a></p>
       </section>
+      </div>
     </main>
     <footer class="site-footer"><span>© <span data-year>2026</span> <span data-profile="name">Shen Hu</span></span></footer>
   </div>
