@@ -16,19 +16,23 @@ npm run dev
 
 ## 日常维护
 
+维护前先阅读 [AGENTS.md](AGENTS.md)。使用多个 Git worktree 时，先运行 `git worktree list` 找到 `main` 所在目录，在该目录执行下面的命令。
+
 - `data.js`：个人资料、学术服务、奖项与论文。
 - `people.js`：人物主页链接。
 - `styles.css`：页面样式。
-- 默认在 `main` 修改和部署；极简版保留在 `codex/minimal-backup`。
+- 默认在 `main` 维护和部署蓝灰版；白底方案 `codex/white-ui-redesign` 已推送 GitHub，尚未合入或上线。
+- 蓝灰快照保留在 `codex/blue-ui-backup`，极简版保留在 `codex/minimal-backup`。
 
 论文或人物配置变化后，先运行 `npm run sync`。推送前检查：
 
 ```sh
+git branch --show-current
 npm run check
 git diff --check
 ```
 
-检查通过后提交改动，执行 `git push origin main` 自动触发部署，在 [Actions](https://github.com/shenhu365/shenhu365.github.io/actions) 查看结果。
+决定发布时，检查通过后提交改动，执行 `git push origin main` 自动触发部署，在 [Actions](https://github.com/shenhu365/shenhu365.github.io/actions) 查看结果。
 
 ## 文档
 

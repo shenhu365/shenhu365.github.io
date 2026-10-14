@@ -120,8 +120,8 @@
   });
 
   const links = [
-    profile.github ? profileLink('GitHub', profile.github, 'github') : '',
     profileLink('Google Scholar', profile.scholar, 'scholar'),
+    profile.github ? profileLink('GitHub', profile.github, 'github') : '',
     profileLink('University profile', profile.institution, 'university'),
     profile.cv ? profileLink('CV', profile.cv, 'cv') : '',
     profileLink(profile.email, `mailto:${profile.email}`, 'email', false)
@@ -174,17 +174,50 @@
     }
   }
 
-  // Highlight the native year anchor without intercepting navigation or history.
-  const updateYearNavigation = () => {
-    const links = [...document.querySelectorAll('#publication-years a')];
-    const current = links.find(link => link.hash === window.location.hash)
-      || (!window.location.hash ? links[0] : null);
-    links.forEach(link => { link.removeAttribute('aria-current'); });
-    if (current) current.setAttribute('aria-current', 'location');
-  };
-  updateYearNavigation();
-  window.addEventListener('hashchange', updateYearNavigation);
-  window.addEventListener('pageshow', updateYearNavigation);
+  // Follow the reading position; native links still own scrolling and history.
+  const yearNavigation = document.querySelector('#publication-years');
+  if (yearNavigation) {
+    const years = [...yearNavigation.querySelectorAll('a')].map(link => ({
+      link, heading: document.getElementById(link.hash.slice(1))
+    })).filter(year => year.heading);
+    const headerInner = document.querySelector('.header-inner');
+    const horizontalYears = window.matchMedia('(max-width: 1099px)');
+    let currentYear = null;
+    let yearFrame = 0;
+
+    const updateYearNavigation = () => {
+      yearFrame = 0;
+      if (!years.length) return;
+      const headerBottom = headerInner?.getBoundingClientRect().bottom || 0;
+      const obstruction = headerBottom + (horizontalYears.matches ? yearNavigation.offsetHeight : 0);
+      const readingLine = Math.max(obstruction + 16, window.innerHeight * .35);
+      let current = years[0];
+      for (const year of years) {
+        if (year.heading.getBoundingClientRect().top <= readingLine) current = year;
+      }
+      // The final group may be too short to reach the reading line.
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      if (maxScroll > 1 && window.scrollY >= maxScroll - 2) current = years.at(-1);
+      if (current === currentYear) return;
+      years.forEach(({ link }) => { link.removeAttribute('aria-current'); });
+      current.link.setAttribute('aria-current', 'location');
+      currentYear = current;
+    };
+    const scheduleYearNavigation = () => {
+      if (!yearFrame) yearFrame = window.requestAnimationFrame(updateYearNavigation);
+    };
+    window.addEventListener('scroll', scheduleYearNavigation, { passive: true });
+    ['hashchange', 'pageshow', 'resize', 'load'].forEach(event => {
+      window.addEventListener(event, scheduleYearNavigation);
+    });
+    if (typeof ResizeObserver !== 'undefined') {
+      const yearLayoutObserver = new ResizeObserver(scheduleYearNavigation);
+      if (publicationList) yearLayoutObserver.observe(publicationList);
+      if (headerInner) yearLayoutObserver.observe(headerInner);
+    }
+    document.fonts?.ready.then(scheduleYearNavigation);
+    updateYearNavigation();
+  }
 
   document.querySelectorAll('[data-person]').forEach(element => {
     const name = element.dataset.person || element.textContent.trim();
