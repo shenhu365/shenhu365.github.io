@@ -19,7 +19,8 @@ npm run dev
 - `data.js`：个人资料、学术服务、奖项与论文。
 - `people.js`：人物主页链接。
 - `styles.css`：页面样式。
-- 默认在 `main` 修改和部署；极简版保留在 `codex/minimal-backup`。
+- 正式站使用 `main`；白底版本保存在本地分支 `codex/white-ui-redesign`，暂不上线。
+- 蓝灰版保留在 `codex/blue-ui-backup`，极简版保留在 `codex/minimal-backup`。
 
 论文或人物配置变化后，先运行 `npm run sync`。推送前检查：
 
@@ -28,7 +29,7 @@ npm run check
 git diff --check
 ```
 
-检查通过后提交改动，执行 `git push origin main` 自动触发部署，在 [Actions](https://github.com/shenhu365/shenhu365.github.io/actions) 查看结果。
+白底方案确认后，按[维护指南](MAINTENANCE.md#白底方案合入与发布)提交并合入 `main`，再推送部署。日常在 `main` 的改动检查、提交后，执行 `git push origin main`；在 [Actions](https://github.com/shenhu365/shenhu365.github.io/actions) 查看结果。
 
 ## 文档
 

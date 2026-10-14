@@ -120,8 +120,8 @@
   });
 
   const links = [
-    profile.github ? profileLink('GitHub', profile.github, 'github') : '',
     profileLink('Google Scholar', profile.scholar, 'scholar'),
+    profile.github ? profileLink('GitHub', profile.github, 'github') : '',
     profileLink('University profile', profile.institution, 'university'),
     profile.cv ? profileLink('CV', profile.cv, 'cv') : '',
     profileLink(profile.email, `mailto:${profile.email}`, 'email', false)

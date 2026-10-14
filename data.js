@@ -15,7 +15,7 @@ window.SITE_DATA = {
       zh: '研究大模型驱动的演化数据智能，聚焦 AI 科学家智能体系统。'
     },
     about: {
-      en: 'I am a Ph.D. student at the Institute of Big Data Science and Industry, Shanxi University, advised by Prof. Yuhua Qian. My research focuses on LLM-driven evolutionary data intelligence and AI scientist agent systems. I also collaborate on research in multimodal learning and visual perception.',
+      en: 'I am a Ph.D. student at Shanxi University’s Institute of Big Data Science and Industry, where I am advised by Prof. Yuhua Qian. My research centers on LLM-driven evolutionary data intelligence, with a focus on AI scientist agent systems. I also collaborate on research in multimodal learning and visual perception.',
       zh: '我是山西大学大数据科学与产业研究院博士研究生，师从钱宇华教授。主要研究大模型驱动的演化数据智能，聚焦 AI 科学家智能体系统。同时参与多模态学习与视觉感知方向的合作研究。'
     }
   },

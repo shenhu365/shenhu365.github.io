@@ -1,8 +1,8 @@
 # 本地字体来源
 
-本站自行托管字体，不请求外部字体服务。当前界面使用用户提供的设计源码包中的 Manrope 与 Noto Sans SC 子集；原有 Source Serif 4 / Source Sans 3 文件及许可证继续保留。四款字体对应的许可证原文均保存在本目录，采用 SIL Open Font License 1.1。
+本站自行托管字体，不请求外部字体服务。白底界面使用原有 Source Serif 4 作为英文姓名、标题、年份与 SH 标记字体，使用用户设计源码包中的 Manrope 作为正文与导航字体、Noto Sans SC 子集作为中文字体。所有内容页预加载这三份 WOFF2，并设置 `font-display: swap`；Source Sans 3 保留但不加载。四款字体对应的许可证原文均保存在本目录，采用 SIL Open Font License 1.1。
 
-## 当前界面字体
+## Manrope 与 Noto Sans SC
 
 直接来源为用户提供的 `shen-homepage-source.zip`。以下文件从压缩包中原样复制，未重新生成、压缩或裁剪字体；许可证仅调整本地文件名。
 
@@ -26,16 +26,16 @@ b0f8442c6140f691a925493870e0cfb3af24210166c5c3e59d9b93c1fb9005b2  noto-sans-sc-s
 1c05c68c34f9708415aada51f17e1b0092d2cea709bf4a94cd38114f9e73d7d9  LICENSE-noto-sans-sc.txt
 ```
 
-## 保留的 Source 字体
+## Source 字体
 
-以下两款正体可变 WOFF2 字体直接取自 Adobe 官方仓库，文件内容未修改，仅重命名以便站点引用。原有文件及来源记录继续保留，不作为当前界面的默认字体。
+以下两款正体可变 WOFF2 字体直接取自 Adobe 官方仓库，文件内容未修改，仅重命名以便站点引用。白底方案重新启用已有 Source Serif 4 文件；Source Sans 3 文件与来源记录继续保留，但当前 CSS 不加载它。
 
 | 本地文件 | 字体版本 | 大小（bytes） | 支持轴 |
 | --- | --- | ---: | --- |
 | `source-serif-4-roman.woff2` | Source Serif 4 · 4.005 | 429100 | `wght` 200–900；`opsz` 8–60 |
 | `source-sans-3-roman.woff2` | Source Sans 3 · 3.052 | 170188 | `wght` 200–900 |
 
-版本与轴范围此前已从下载文件的 `name` / `fvar` 表核对。两款均为正体，没有打包斜体；若恢复使用，`@font-face` 可分别命名为 `Source Serif 4`、`Source Sans 3`，并声明 `font-style: normal` 与 `font-weight: 200 900`；Source Serif 4 可使用 `font-optical-sizing: auto`。
+版本与轴范围此前已从下载文件的 `name` / `fvar` 表核对。两款均为正体，没有打包斜体。当前 `@font-face` 将 Source Serif 4 声明为 `font-style: normal`、`font-weight: 200 900`，显示用途采用 `font-optical-sizing: auto`；各内容页按目录深度预加载 `source-serif-4-roman.woff2`。若以后启用 Source Sans 3，同样按其已核实的正体与字重范围声明，不推定存在斜体文件。
 
 ### 固定来源
 
