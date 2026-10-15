@@ -7,7 +7,7 @@
 - Shen Hu（胡深）的个人学术主页，重点是让访客快速找到个人介绍、论文、奖项、学术服务和联系方式。
 - 三个真实静态内容页：`index.html`（主页）、`publications/index.html`（论文）与 `awards/index.html`（获奖），分别使用 `/`、`/publications/` 和 `/awards/` 目录式地址。不使用前端框架、路由库、数据库、后台或站点编译打包，也不需要 `npm install`。论文的静态 HTML 由本地同步命令更新，奖项静态回退手工与配置同步，均随源码提交。
 - 运行时是原生 HTML、CSS、JavaScript；Node.js 20+ 用于本地预览、论文静态内容同步和离线检查。
-- 当前远程仓库：`https://github.com/shenhu365/shenhu365.github.io.git`。正式站仍由 `main` 发布；本分支 `codex/white-ui-redesign` 保存白底 UI 的本地提交，当前按用户要求仅保存版本，未推送远端、未合入 `main` 或发布。后续继续在此分支维护，推送远端或上线需用户另行授权。此前蓝灰版保存在本地 `codex/blue-ui-backup`（`16ac7c9`），极简版继续保存在 `codex/minimal-backup`；两份备份只供查阅或用户明确要求时恢复，不覆盖、合入新版或删除。继续白底改版时留在 `codex/white-ui-redesign`；用户确认采用后才合入 `main` 并按授权发布，之后日常默认在 `main` 维护。原 `codex/ui-redesign` 不再作为维护依赖。实际操作前以 `git remote -v`、`git branch --show-current` 和 `git status` 为准；分支约定不代表自动提交、推送或部署。
+- 当前远程仓库：`https://github.com/shenhu365/shenhu365.github.io.git`。正式站仍由 `main` 发布；白底 UI 已推送到 GitHub 的 `codex/white-ui-redesign` 分支，本地同名分支跟踪 `origin/codex/white-ui-redesign`，尚未合入 `main` 或发布。当前继续在该分支维护与预览；仅向此分支推送不会自动部署，不能将分支上传视为合并或上线授权。此前蓝灰版保存在本地 `codex/blue-ui-backup`（`16ac7c9`），极简版继续保存在 `codex/minimal-backup`；两份备份只供查阅或用户明确要求时恢复，不覆盖、合入新版或删除。继续白底改版时留在 `codex/white-ui-redesign`；用户明确要求合入并发布后才合入 `main` 并上线，之后日常默认在 `main` 维护。原 `codex/ui-redesign` 不再作为维护依赖。实际操作前以 `git remote -v`、`git branch --show-current` 和 `git status` 为准；分支约定不代表自动提交、推送或部署。
 - 发布地址：`https://shenhu365.github.io/`，论文页与获奖页的地址约定为 `/publications/`、`/awards/`。本地预览默认 `http://127.0.0.1:4173/`；本地地址调整需推送并通过 Pages 部署后才在线上生效。
 
 ## 已确定的界面与内容要求
@@ -121,5 +121,5 @@
 - 新增要发布的目录页或文件，检查并同步 HTML 引用、`scripts/serve.mjs` 的 `allowed` 和 Pages 工作流复制清单。检查器中，新内容页以 `目录名/index.html` 加入 `contentPages`，兼容跳转页加入 `redirectPages`；两者合并成 `pageFiles`，其首级目录自动进入 `staticFiles`，其他根目录资源需单独加入。页面目录保留结构复制；`publications/`、`awards/` 与 `assets/` 各自复制。
 - `publication-renderer.js` 是浏览器运行时资源，已进入预览、离线检查和 Pages 复制白名单；`scripts/sync-publications.mjs` 仅用于本地维护，不发布。保持这一区分，不依赖线上运行同步脚本。
 - 站点仅部署白名单中的页面、脚本、样式和 `assets/` 等静态资源。根 README、MAINTENANCE、AGENTS、SOURCE_NOTES 和开发脚本不进入站点产物；`assets/fonts/` 中的字体来源与许可证随字体发布。若 GitHub 仓库公开，仓库内的说明文件仍可被读到。
-- 白底方案先在 `codex/white-ui-redesign` 完成检查与提交，用户确认采用后合入 `main`，复查并按授权推送；直接 `git push origin main` 不会把另一分支的改动自动带入。后续日常发布仍为在 `main` 修改 → 同步与检查 → 提交相关文件 → `git push origin main`。工作流 push 仅监听 `main`，自动运行 `Deploy academic homepage`，无需重复 Run workflow；Pages Source 应为 GitHub Actions。其他分支推送不会自动部署，也不从预览或备份分支手动运行发布工作流。push 成功不等于部署成功，发布后查看对应提交的 Actions 结果；详见 [MAINTENANCE.md](MAINTENANCE.md)。
+- 白底方案已推送 GitHub，后续在 `codex/white-ui-redesign` 完成检查与提交，按授权使用 `git push origin codex/white-ui-redesign` 同步该分支；只有用户明确要求采用并发布时才合入 `main`，复查并按授权推送；直接 `git push origin main` 不会把另一分支的改动自动带入。后续日常发布仍为在 `main` 修改 → 同步与检查 → 提交相关文件 → `git push origin main`。工作流 push 仅监听 `main`，自动运行 `Deploy academic homepage`，无需重复 Run workflow；Pages Source 应为 GitHub Actions。其他分支推送不会自动部署，也不从预览或备份分支手动运行发布工作流。push 成功不等于部署成功，发布后查看对应提交的 Actions 结果；详见 [MAINTENANCE.md](MAINTENANCE.md)。
 - 不使用强制推送或通过删除历史来解决同步问题。推送失败时先查看错误、远端状态与用户未提交内容，再选择保留改动的处理方式。
