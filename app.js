@@ -182,14 +182,43 @@
     const headerInner = document.querySelector('.header-inner');
     const horizontalYears = window.matchMedia('(max-width: 1099px)');
     let currentYear = null;
+    let targetYear = null;
+    let targetTimer = 0;
     let yearFrame = 0;
     let revealYear = () => {};
     let updateYearDock = () => {};
+
+    const clearYearTarget = () => {
+      targetYear = null;
+      window.clearTimeout(targetTimer);
+    };
+    const selectYear = (year, force = false) => {
+      if (year !== currentYear || force) {
+        years.forEach(({ link }) => { link.removeAttribute('aria-current'); });
+        year.link.setAttribute('aria-current', 'location');
+        currentYear = year;
+        revealYear(year, force);
+      }
+      updateYearDock();
+    };
 
     const updateYearNavigation = () => {
       yearFrame = 0;
       if (!years.length) return;
       const headerBottom = headerInner?.getBoundingClientRect().bottom || 0;
+      const yearBounds = yearNavigation.getBoundingClientRect();
+      const joined = horizontalYears.matches && headerBottom > 0
+        && Math.abs(yearBounds.top - headerBottom) <= 1;
+      // One backdrop spans both rows once they meet; separate blur edges leave a seam.
+      if (joined) {
+        yearNavigation.style.setProperty('--joined-navigation-offset', `${yearBounds.top}px`);
+        yearNavigation.style.setProperty('--joined-navigation-left', `${yearBounds.left}px`);
+        yearNavigation.style.setProperty('--joined-navigation-width', `${document.documentElement.clientWidth}px`);
+      } else {
+        ['--joined-navigation-offset', '--joined-navigation-left', '--joined-navigation-width']
+          .forEach(property => yearNavigation.style.removeProperty(property));
+      }
+      document.body.classList.toggle('has-joined-navigation', joined);
       const obstruction = headerBottom + (horizontalYears.matches ? yearNavigation.offsetHeight : 0);
       const readingLine = Math.max(obstruction + 16, window.innerHeight * .35);
       let current = years[0];
@@ -199,23 +228,50 @@
       // The final group may be too short to reach the reading line.
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
       if (maxScroll > 1 && window.scrollY >= maxScroll - 2) current = years.at(-1);
-      if (current === currentYear) {
-        updateYearDock();
-        return;
-      }
-      years.forEach(({ link }) => { link.removeAttribute('aria-current'); });
-      current.link.setAttribute('aria-current', 'location');
-      currentYear = current;
-      revealYear(current);
-      updateYearDock();
+      // A native smooth jump passes other groups before reaching its target.
+      // Keep its selected number and center together during that transition.
+      if (current === targetYear) clearYearTarget();
+      selectYear(targetYear || current);
     };
     const scheduleYearNavigation = () => {
       if (!yearFrame) yearFrame = window.requestAnimationFrame(updateYearNavigation);
     };
+    const cancelYearJump = () => {
+      clearYearTarget();
+      scheduleYearNavigation();
+    };
+    const jumpToYear = year => {
+      if (!year) return;
+      clearYearTarget();
+      targetYear = year;
+      selectYear(year, true);
+      // Also recover if a browser cancels the native jump or cannot scroll.
+      targetTimer = window.setTimeout(() => {
+        clearYearTarget();
+        scheduleYearNavigation();
+      }, 1500);
+    };
     window.addEventListener('scroll', scheduleYearNavigation, { passive: true });
-    ['hashchange', 'pageshow', 'resize', 'load'].forEach(event => {
-      window.addEventListener(event, scheduleYearNavigation);
+    window.addEventListener('hashchange', () => {
+      const target = years.find(year => year.link.hash === window.location.hash);
+      if (target) jumpToYear(target);
+      else clearYearTarget();
+      scheduleYearNavigation();
     });
+    ['pageshow', 'resize', 'load'].forEach(event => {
+      window.addEventListener(event, () => { clearYearTarget(); scheduleYearNavigation(); });
+    });
+    // Manual browsing takes precedence over a pending anchor animation.
+    window.addEventListener('wheel', cancelYearJump, { passive: true });
+    window.addEventListener('touchmove', cancelYearJump, { passive: true });
+    window.addEventListener('pointerdown', event => {
+      if (!yearNavigation.contains(event.target)) cancelYearJump();
+    }, { passive: true });
+    window.addEventListener('keydown', event => {
+      if (event.defaultPrevented || event.target.closest('input, textarea, select, [contenteditable]')) return;
+      if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(event.key)) cancelYearJump();
+    });
+    window.addEventListener('pagehide', clearYearTarget);
     if (typeof ResizeObserver !== 'undefined') {
       const yearLayoutObserver = new ResizeObserver(scheduleYearNavigation);
       if (publicationList) yearLayoutObserver.observe(publicationList);
@@ -346,7 +402,7 @@
         if (event.detail === 0) {
           cancelPendingClick();
           revealPausedUntil = 0;
-          revealYear(years.find(year => year.link === link), true);
+          jumpToYear(years.find(year => year.link === link));
           return;
         }
         event.preventDefault();
