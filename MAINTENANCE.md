@@ -4,9 +4,10 @@
 
 ## 本地预览
 
-需要 Node.js 20 或更新版本，无需执行 `npm install`。在项目根目录运行：
+需要 Node.js 20 或更新版本，无需执行 `npm install`。本机统一使用以下目录，日常分支为 `main`：
 
 ```sh
+cd /Users/hushen/Documents/ChatGPT/scholarpage
 npm run dev
 ```
 
@@ -203,27 +204,25 @@ git diff --check
 
 ## 日常维护、提交与发布
 
-默认在 `main` 修改蓝灰版，独立白底分支不参与本轮维护。仅要求修改时，AI 完成实现、验证和文档同步，不自动提交或推送；明确请求提交、推送或发布时，按请求的范围执行。单独询问步骤时只提供命令。
+统一在 `/Users/hushen/Documents/ChatGPT/scholarpage` 的 `main` 修改蓝灰版、预览和提交。白底版与极简版只需保留为 Git 分支，不占用独立常驻工作目录。普通维护或文档修改不新建 worktree 或克隆；只有用户明确要求并行工作目录时才使用额外工作树。仅要求修改时，AI 完成实现、验证和文档同步，不自动提交或推送；明确请求提交、推送或发布时，按请求的范围执行。单独询问步骤时只提供命令。
 
-1. **开始修改前确认工作区。** 查看实际目录、当前分支、已有改动及工作树：
+1. **开始修改前确认工作区。** 进入统一目录，检查当前分支和已有改动：
 
    ```sh
+   cd /Users/hushen/Documents/ChatGPT/scholarpage
    git rev-parse --show-toplevel
    git branch --show-current
    git status --short
-   git worktree list
    ```
 
-   若 `main` 已在另一工作树检出，先进入 `git worktree list` 中对应的目录，再确认分支和状态；原目录可能仍是白底方案，不能根据预览端口判断分支。保留其他工作树的未提交内容，不复制覆盖或自动 stash。
-
-   若 main 没有被其他工作树占用，且当前工作区干净（`git status --short` 没有输出），可切到 `main` 并获取远端更新：
+   当前分支应为 `main`。若此前临时查看了其他版本，先保存该分支的修改，工作区干净（`git status --short` 没有输出）后返回 `main`；需要获取远端更新时快进拉取：
 
    ```sh
    git switch main
    git pull --ff-only origin main
    ```
 
-   若有未提交改动，先确认归属并在当前分支妥善保存，不自动带着用户改动切分支或覆盖文件。快进拉取失败时先检查分支差异，不强行重置。
+   若有未提交改动，先确认归属并按用户授权保存，不自动带着改动切分支、覆盖文件或 stash。若提示 `main` 被其他工作树占用，先用 `git worktree list` 核对并保护相关目录的改动，不新建目录绕过问题。快进拉取失败时先检查分支差异，不强行重置。
 
 2. **修改并验证。** 按前文维护配置、页面及相关说明。论文、人物配置、站主姓名或共享论文渲染器变化时，先运行 `npm run sync`；然后执行：
 
@@ -245,7 +244,7 @@ git diff --check
    git commit -m "Update maintenance documentation"
    ```
 
-   提交前确认暂存区没有其他任务的内容，提交说明应对应实际改动。多工作树场景下，暂存、提交和推送均在已确认的 main 目录执行；提供具体步骤时列出该目录及实际改动文件，不直接套用默认目录或 `git add .`。
+   提交前确认暂存区没有其他任务的内容，提交说明应对应实际改动。暂存、提交和推送均在上述统一目录的 `main` 执行；提供步骤时写明该目录及实际改动文件，不再使用旧临时工作目录，也不默认使用 `git add .`。
 
 4. **决定发布后推送 `main`：**
 
@@ -259,21 +258,30 @@ git diff --check
 
 ## 保留的其他版本
 
-`codex/blue-ui-backup` 保留蓝灰版快照（`16ac7c9`），`codex/minimal-backup` 保留极简版（`a58f7d9`）；两份备份仅供查阅或用户明确要求时恢复，不在其中日常修改，不把当前界面合入、覆盖或删除。独立白底方案 `codex/white-ui-redesign` 的版本 `1bd7f25` 已推送 GitHub，尚未合入 main 或上线；继续预览该方案与维护 main 是两项独立工作，只有用户明确要求时才合并或发布。原 `codex/ui-redesign` 已完成原改版用途，不再是维护依赖。
+这些分支与 `main` 共享同一个仓库，不需要各自保留一份工作目录：
+
+| 分支 | 用途 |
+| --- | --- |
+| `codex/white-ui-redesign` | 保留未合入、未上线的白底方案及该分支的文档修改 |
+| `codex/minimal-backup` | 保留极简版及其简洁 README |
+| `codex/blue-ui-backup` | 保留较早的蓝灰版快照 |
+
+日常维护留在 `main`，不自动覆盖、合并或删除这些分支；白底方案只有用户明确要求采用时才合入并发布。白底界面版本已推送 GitHub，后续本地文档提交是否已上传需查看 Git 状态，保存为本地提交不等于推送。原 `codex/ui-redesign` 不再是维护依赖。此前额外工作目录已清理，分支及提交历史仍在；旧版本文档中的目录安排仅代表当时状态，当前工作目录约定以 `main` 的本文件和 `AGENTS.md` 为准。
 
 无需切分支即可只读比较，例如：
 
 ```sh
+git show codex/white-ui-redesign:styles.css
 git show codex/minimal-backup:styles.css
 git show codex/minimal-backup:index.html
 ```
 
-若要切换分支预览，先妥善保存当前改动并确认工作区干净；预览结束后回到 `main` 再继续日常维护。本项目没有第二套页面或运行时版本切换开关。
+若用户需要预览其他版本，先按授权保存当前改动并确认工作区干净，停止本项目的预览服务，然后在统一目录执行 `git switch codex/white-ui-redesign` 或 `git switch codex/minimal-backup`，再运行 `npm run dev`。查看结束后停止服务，确认没有未保存改动，执行 `git switch main` 并重新启动预览。切换只改变本地文件，不会自动合并分支或部署。本项目没有第二套页面或运行时版本切换开关；旧版预览通常无需修改文件，备份分支不用于日常提交。
 
 ## 常见问题
 
 - **4173 端口被占用，或浏览器仍显示旧版：** 在启动旧服务的终端按 `Ctrl+C`，从当前项目目录重新运行 `npm run dev` 并刷新页面。旧版非 watch 进程不会随服务器脚本更新；不确定时用 `npm run dev -- --port 4174` 启动新服务并访问对应端口。
 - **新页面或文件返回 404：** 检查路径与文件名大小写、浏览器端口及 `--base` 是否正确，再核对上面的预览白名单、检查清单与 Pages 复制清单。macOS 本地可能忽略大小写，GitHub Pages 不会。
 - **检查提示论文静态内容过期：** 运行 `npm run sync` 后再运行 `npm run check`，将配置与更新后的 `publications/index.html` 一起提交；不要通过手改生成区或跳过检查解决。
-- **当前应该改哪个分支：** 蓝灰版使用 `main`；白底预览方案使用 `codex/white-ui-redesign`，不得因维护 main 而自动合并。不要在 `codex/blue-ui-backup` 或 `codex/minimal-backup` 编辑；切换前先妥善保存改动并确认工作区干净。
+- **当前应该在哪个目录、分支修改：** 日常进入 `/Users/hushen/Documents/ChatGPT/scholarpage` 并确认分支为 `main`。白底版和极简版保留为分支，只有用户要求时才在同一目录切换查看；先保存改动，查看结束后回到 `main`，不为日常维护新建工作目录。
 - **本地正常，线上没变化：** 先确认改动已提交并推送到 `main`，再查看 Actions 中对应提交的部署结果。若部署成功仍未更新，刷新浏览器并检查文件是否纳入 Git 和发布清单；推送白底预览或备份分支不会自动部署；此时线上未改变是正常结果。

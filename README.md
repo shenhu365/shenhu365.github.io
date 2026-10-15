@@ -9,6 +9,7 @@
 需要 Node.js 20+，无需安装依赖。在项目根目录运行：
 
 ```sh
+cd /Users/hushen/Documents/ChatGPT/scholarpage
 npm run dev
 ```
 
@@ -16,12 +17,12 @@ npm run dev
 
 ## 日常维护
 
-维护前先阅读 [AGENTS.md](AGENTS.md)。使用多个 Git worktree 时，先运行 `git worktree list` 找到 `main` 所在目录，在该目录执行下面的命令。
+日常统一在 `/Users/hushen/Documents/ChatGPT/scholarpage` 的 `main` 分支维护、预览和提交。其他版本保留为 Git 分支，不另设常驻工作目录；维护前先阅读 [AGENTS.md](AGENTS.md)。
 
 - `data.js`：个人资料、学术服务、奖项与论文。
 - `people.js`：人物主页链接。
 - `styles.css`：页面样式。
-- 默认在 `main` 维护和部署蓝灰版；白底方案 `codex/white-ui-redesign` 已推送 GitHub，尚未合入或上线。
+- `main` 维护和部署蓝灰版；白底方案保留在 `codex/white-ui-redesign`，尚未合入或上线。分支后续提交的同步状态以 Git 为准。
 - 蓝灰快照保留在 `codex/blue-ui-backup`，极简版保留在 `codex/minimal-backup`。
 
 论文或人物配置变化后，先运行 `npm run sync`。推送前检查：
