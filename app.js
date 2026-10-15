@@ -24,31 +24,20 @@
   window.addEventListener('hashchange', updateNavigation);
   window.addEventListener('pageshow', updateNavigation);
 
-  // Contract the fixed navigation, keeping body spacing and the sidebar stable.
+  // Keep navigation height fixed; scrolling only changes its glass background.
   const header = document.querySelector('.site-header');
   if (header) {
     const scrollPosition = () => Math.max(0, Math.min(window.scrollY,
       Math.max(0, document.documentElement.scrollHeight - window.innerHeight)));
-    let compact = false;
     let frame = 0;
-    const setCompact = value => {
-      if (compact === value) return;
-      compact = value;
-      header.classList.toggle('is-compact', value);
-    };
     const updateHeader = () => {
       frame = 0;
       const scroll = scrollPosition();
       header.classList.toggle('is-scrolled', scroll > 1);
-      // Keep the compact state while scrolling back; expand only at the top.
-      if (scroll <= 1) setCompact(false);
-      else if (scroll > 28) setCompact(true);
     };
     const resetHeader = () => {
       if (frame) window.cancelAnimationFrame(frame);
       frame = 0;
-      // Restoring or resizing a scrolled page must not expand the navigation.
-      setCompact(scrollPosition() > 1);
       updateHeader();
     };
     window.addEventListener('scroll', () => {
@@ -192,6 +181,15 @@
     let yearFrame = 0;
     let revealYear = () => {};
     let updateYearDock = () => {};
+    // Reload a year URL at its heading; ordinary history traversal keeps its position.
+    let reloadYear = performance.getEntriesByType('navigation')[0]?.type === 'reload'
+      ? years.find(year => year.link.hash === window.location.hash) : null;
+    let reloadFrame = 0;
+    const cancelYearReload = () => {
+      if (!reloadYear) return;
+      reloadYear = null;
+      window.cancelAnimationFrame(reloadFrame);
+    };
 
     const clearYearTarget = () => {
       targetYear = null;
@@ -207,6 +205,7 @@
       updateYearDock();
     };
     const syncYearAddress = year => {
+      if (reloadYear) return;
       const hash = window.location.hash;
       // Keep unrelated anchors and the clean URL on the initial, unscrolled view.
       if (hash && !years.some(item => item.link.hash === hash)) return;
@@ -257,12 +256,13 @@
       // Keep its selected number and center together during that transition.
       if (current === targetYear) clearYearTarget();
       if (!targetYear) syncYearAddress(current);
-      selectYear(targetYear || current);
+      selectYear(reloadYear || targetYear || current);
     };
     const scheduleYearNavigation = () => {
       if (!yearFrame) yearFrame = window.requestAnimationFrame(updateYearNavigation);
     };
     const cancelYearJump = () => {
+      cancelYearReload();
       clearYearTarget();
       scheduleYearNavigation();
     };
@@ -278,7 +278,8 @@
       }, 1500);
     };
     window.addEventListener('scroll', scheduleYearNavigation, { passive: true });
-    const restoreYearTarget = () => {
+    const restoreYearTarget = event => {
+      if (event?.type === 'hashchange' || event?.type === 'popstate') cancelYearReload();
       const target = years.find(year => year.link.hash === window.location.hash);
       if (target) jumpToYear(target);
       else clearYearTarget();
@@ -288,19 +289,43 @@
     ['hashchange', 'popstate', 'pageshow', 'load'].forEach(event => {
       window.addEventListener(event, restoreYearTarget);
     });
+    window.addEventListener('pageshow', event => {
+      if (event.persisted || !reloadYear) return;
+      // Run after page restoration and font layout, without disabling history restoration.
+      Promise.resolve(document.fonts?.ready).then(() => {
+        if (!reloadYear) return;
+        reloadFrame = window.requestAnimationFrame(() => {
+          reloadFrame = window.requestAnimationFrame(() => {
+            const target = reloadYear;
+            if (!target) return;
+            if (target.link.hash === window.location.hash) {
+              jumpToYear(target);
+              target.heading.scrollIntoView({ behavior: 'instant', block: 'start', inline: 'nearest' });
+            }
+            cancelYearReload();
+            scheduleYearNavigation();
+          });
+        });
+      });
+    }, { once: true });
     window.addEventListener('resize', scheduleYearNavigation);
     window.visualViewport?.addEventListener('resize', scheduleYearNavigation);
     // Manual browsing takes precedence over a pending anchor animation.
     window.addEventListener('wheel', cancelYearJump, { passive: true });
     window.addEventListener('touchmove', cancelYearJump, { passive: true });
     window.addEventListener('pointerdown', event => {
+      cancelYearReload();
       if (!yearNavigation.contains(event.target)) cancelYearJump();
     }, { passive: true });
     window.addEventListener('keydown', event => {
+      cancelYearReload();
       if (event.defaultPrevented || event.target.closest('input, textarea, select, [contenteditable]')) return;
       if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(event.key)) cancelYearJump();
     });
-    window.addEventListener('pagehide', clearYearTarget);
+    window.addEventListener('pagehide', () => {
+      cancelYearReload();
+      clearYearTarget();
+    });
     if (typeof ResizeObserver !== 'undefined') {
       const yearLayoutObserver = new ResizeObserver(scheduleYearNavigation);
       if (publicationList) yearLayoutObserver.observe(publicationList);
@@ -352,6 +377,7 @@
         editButton.setAttribute('aria-expanded', 'false');
         if (restoreFocus) (returnFocus || currentYear?.link || years[0].link).focus({ preventScroll: true });
       };
+      const withinEditor = target => form.contains(target) || editButton.contains(target);
       const openEditor = trigger => {
         cancelPendingClick();
         returnFocus = trigger?.matches('a, button') ? trigger : currentYear?.link || years[0].link;
@@ -409,10 +435,11 @@
         revealYear(years[next], true);
       });
       document.addEventListener('pointerdown', event => {
-        if (!form.hidden && !yearNavigation.contains(event.target)) closeEditor(false);
+        // A year choice and the rail's empty space are outside the editor too.
+        if (!form.hidden && !withinEditor(event.target)) closeEditor(false);
       });
       yearNavigation.addEventListener('focusout', event => {
-        if (!form.hidden && event.relatedTarget && !yearNavigation.contains(event.relatedTarget)) closeEditor(false);
+        if (!form.hidden && event.relatedTarget && !withinEditor(event.relatedTarget)) closeEditor(false);
       });
       years.forEach(({ link }) => {
         link.title = 'Click to jump; double-click or press F2 to enter a year';
@@ -429,6 +456,7 @@
         const link = event.target.closest('a');
         if (!link || !yearList.contains(link) || event.button !== 0 || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
         if (event.detail === 0) {
+          closeEditor(false);
           cancelPendingClick();
           revealPausedUntil = 0;
           jumpToYear(years.find(year => year.link === link));
