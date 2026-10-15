@@ -181,15 +181,6 @@
     let yearFrame = 0;
     let revealYear = () => {};
     let updateYearDock = () => {};
-    // Reload a year URL at its heading; ordinary history traversal keeps its position.
-    let reloadYear = performance.getEntriesByType('navigation')[0]?.type === 'reload'
-      ? years.find(year => year.link.hash === window.location.hash) : null;
-    let reloadFrame = 0;
-    const cancelYearReload = () => {
-      if (!reloadYear) return;
-      reloadYear = null;
-      window.cancelAnimationFrame(reloadFrame);
-    };
 
     const clearYearTarget = () => {
       targetYear = null;
@@ -205,7 +196,6 @@
       updateYearDock();
     };
     const syncYearAddress = year => {
-      if (reloadYear) return;
       const hash = window.location.hash;
       // Keep unrelated anchors and the clean URL on the initial, unscrolled view.
       if (hash && !years.some(item => item.link.hash === hash)) return;
@@ -256,13 +246,12 @@
       // Keep its selected number and center together during that transition.
       if (current === targetYear) clearYearTarget();
       if (!targetYear) syncYearAddress(current);
-      selectYear(reloadYear || targetYear || current);
+      selectYear(targetYear || current);
     };
     const scheduleYearNavigation = () => {
       if (!yearFrame) yearFrame = window.requestAnimationFrame(updateYearNavigation);
     };
     const cancelYearJump = () => {
-      cancelYearReload();
       clearYearTarget();
       scheduleYearNavigation();
     };
@@ -278,8 +267,7 @@
       }, 1500);
     };
     window.addEventListener('scroll', scheduleYearNavigation, { passive: true });
-    const restoreYearTarget = event => {
-      if (event?.type === 'hashchange' || event?.type === 'popstate') cancelYearReload();
+    const restoreYearTarget = () => {
       const target = years.find(year => year.link.hash === window.location.hash);
       if (target) jumpToYear(target);
       else clearYearTarget();
@@ -289,43 +277,19 @@
     ['hashchange', 'popstate', 'pageshow', 'load'].forEach(event => {
       window.addEventListener(event, restoreYearTarget);
     });
-    window.addEventListener('pageshow', event => {
-      if (event.persisted || !reloadYear) return;
-      // Run after page restoration and font layout, without disabling history restoration.
-      Promise.resolve(document.fonts?.ready).then(() => {
-        if (!reloadYear) return;
-        reloadFrame = window.requestAnimationFrame(() => {
-          reloadFrame = window.requestAnimationFrame(() => {
-            const target = reloadYear;
-            if (!target) return;
-            if (target.link.hash === window.location.hash) {
-              jumpToYear(target);
-              target.heading.scrollIntoView({ behavior: 'instant', block: 'start', inline: 'nearest' });
-            }
-            cancelYearReload();
-            scheduleYearNavigation();
-          });
-        });
-      });
-    }, { once: true });
     window.addEventListener('resize', scheduleYearNavigation);
     window.visualViewport?.addEventListener('resize', scheduleYearNavigation);
     // Manual browsing takes precedence over a pending anchor animation.
     window.addEventListener('wheel', cancelYearJump, { passive: true });
     window.addEventListener('touchmove', cancelYearJump, { passive: true });
     window.addEventListener('pointerdown', event => {
-      cancelYearReload();
       if (!yearNavigation.contains(event.target)) cancelYearJump();
     }, { passive: true });
     window.addEventListener('keydown', event => {
-      cancelYearReload();
       if (event.defaultPrevented || event.target.closest('input, textarea, select, [contenteditable]')) return;
       if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(event.key)) cancelYearJump();
     });
-    window.addEventListener('pagehide', () => {
-      cancelYearReload();
-      clearYearTarget();
-    });
+    window.addEventListener('pagehide', clearYearTarget);
     if (typeof ResizeObserver !== 'undefined') {
       const yearLayoutObserver = new ResizeObserver(scheduleYearNavigation);
       if (publicationList) yearLayoutObserver.observe(publicationList);
