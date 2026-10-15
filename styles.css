@@ -141,6 +141,7 @@ h2 { font-size: 22px; font-weight: 600; line-height: 1.4; letter-spacing: -.5px;
 #publication-list { grid-column: 1; grid-row: 1; min-width: 0; }
 .publication-years { display: flex; flex-direction: column; gap: 2px; min-width: 0; grid-column: 2; grid-row: 1; position: sticky; top: var(--profile-top); align-self: start; z-index: 10; }
 .publication-years[hidden] { display: none; }
+.publication-year-slot { display: none; }
 @media (min-width: 1100px) {
   /* Align the resting rail with the first paper card below its year heading. */
   .publication-years:not(.is-floating) { margin-top: calc(var(--year-heading-size) * var(--year-heading-line-height) + var(--year-heading-gap)); }
@@ -207,11 +208,12 @@ h2 { font-size: 22px; font-weight: 600; line-height: 1.4; letter-spacing: -.5px;
   .publications-page .publications-heading { padding-right: 0; }
   .publications-heading { margin-bottom: 6px; }
   .publication-browser { --year-heading-gap: 10px; display: block; margin-right: 0; }
+  .publication-year-slot { display: block; height: 0; pointer-events: none; }
   .publication-years { flex-direction: row; align-items: center; justify-content: center; margin-left: 0; top: var(--sticky-header-height); margin-bottom: 2px; padding-block: 0; background: transparent; transition: top 180ms ease; }
   .publication-years::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: var(--background); }
   /* The fixed header carries both rows; the rail paints only its controls above it. */
   .has-joined-navigation .site-header::before { height: var(--joined-navigation-height); border-bottom-color: transparent; transition: background-color 180ms ease; }
-  .has-joined-navigation .publication-years { z-index: 21; }
+  .has-joined-navigation .publication-years { position: fixed; left: var(--year-strip-left); width: var(--year-strip-width); z-index: 21; }
   .has-joined-navigation .publication-years::before { display: none; }
   .publication-years ul { flex: 0 1 auto; flex-direction: row; width: max-content; max-width: 100%; max-height: none; padding-inline: 0; overflow-x: auto; overflow-y: hidden; }
   .publication-years a { justify-content: center; width: 64px; min-width: 64px; padding-inline: 12px; }
@@ -349,7 +351,7 @@ h2 { font-size: 22px; font-weight: 600; line-height: 1.4; letter-spacing: -.5px;
 @media print {
   :root { --background: white; --card: white; --text: #202a40; --muted: #4d5668; --venue-text: #4d5668; }
   body { padding-top: 0; }
-  .site-header, .site-footer, .skip-link, .publication-years { display: none; }
+  .site-header, .site-footer, .skip-link, .publication-years, .publication-year-slot { display: none; }
   .publication-browser { display: block; margin-right: 0; }
   .publications-page .publications-heading { padding-right: 0; }
   .publication-year > h3 { scroll-margin-top: 0; }

@@ -181,6 +181,11 @@
     })).filter(year => year.heading);
     const headerInner = document.querySelector('.header-inner');
     const horizontalYears = window.matchMedia('(max-width: 1099px)');
+    // Keep a stable document-flow anchor when the horizontal strip becomes fixed.
+    const yearSlot = document.createElement('div');
+    yearSlot.className = 'publication-year-slot';
+    yearSlot.setAttribute('aria-hidden', 'true');
+    yearNavigation.before(yearSlot);
     let currentYear = null;
     let targetYear = null;
     let targetTimer = 0;
@@ -214,29 +219,40 @@
     const updateYearNavigation = () => {
       yearFrame = 0;
       if (!years.length) return;
-      const headerBottom = headerInner?.getBoundingClientRect().bottom || 0;
-      const yearBounds = yearNavigation.getBoundingClientRect();
-      const joined = Boolean(header) && horizontalYears.matches && headerBottom > 0
-        && Math.abs(yearBounds.top - headerBottom) <= 1;
-      // Keep the shared backdrop on the fixed header, including at the page bottom.
+      const headerHeight = headerInner?.getBoundingClientRect().height || 0;
+      const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+      const scroll = Math.max(0, Math.min(window.scrollY, maxScroll));
+      const overscroll = window.scrollY - scroll;
+      const slotBounds = yearSlot.getBoundingClientRect();
+      // Safari's elastic scroll must not detach the strip or split its backdrop.
+      const joined = Boolean(header) && horizontalYears.matches && headerHeight > 0
+        && scroll > 1 && slotBounds.top + overscroll <= headerHeight + 1;
       if (joined) {
-        header.style.setProperty('--joined-navigation-height', `${yearBounds.bottom}px`);
-        header.style.setProperty('--joined-navigation-left', `${yearBounds.left}px`);
-        header.style.setProperty('--joined-navigation-offset', `${headerBottom}px`);
-      } else if (header) {
+        const rowHeight = yearNavigation.offsetHeight;
+        const rowGap = parseFloat(getComputedStyle(yearNavigation).marginBottom) || 0;
+        yearSlot.style.height = `${rowHeight + rowGap}px`;
+        yearNavigation.style.setProperty('--year-strip-left', `${slotBounds.left}px`);
+        yearNavigation.style.setProperty('--year-strip-width', `${slotBounds.width}px`);
+        // Both rows use fixed positioning; size the glass independently of bounce.
+        header.style.setProperty('--joined-navigation-height', `${headerHeight + rowHeight}px`);
+        header.style.setProperty('--joined-navigation-left', `${slotBounds.left}px`);
+        header.style.setProperty('--joined-navigation-offset', `${headerHeight}px`);
+      } else {
+        yearSlot.style.removeProperty('height');
+        ['--year-strip-left', '--year-strip-width']
+          .forEach(property => yearNavigation.style.removeProperty(property));
         ['--joined-navigation-height', '--joined-navigation-left', '--joined-navigation-offset']
-          .forEach(property => header.style.removeProperty(property));
+          .forEach(property => header?.style.removeProperty(property));
       }
       document.body.classList.toggle('has-joined-navigation', joined);
-      const obstruction = headerBottom + (horizontalYears.matches ? yearNavigation.offsetHeight : 0);
+      const obstruction = headerHeight + (horizontalYears.matches ? yearNavigation.offsetHeight : 0);
       const readingLine = Math.max(obstruction + 16, window.innerHeight * .35);
       let current = years[0];
       for (const year of years) {
-        if (year.heading.getBoundingClientRect().top <= readingLine) current = year;
+        if (year.heading.getBoundingClientRect().top + overscroll <= readingLine) current = year;
       }
       // The final group may be too short to reach the reading line.
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      if (maxScroll > 1 && window.scrollY >= maxScroll - 2) current = years.at(-1);
+      if (maxScroll > 1 && scroll >= maxScroll - 2) current = years.at(-1);
       // A native smooth jump passes other groups before reaching its target.
       // Keep its selected number and center together during that transition.
       if (current === targetYear) clearYearTarget();
@@ -273,6 +289,7 @@
       window.addEventListener(event, restoreYearTarget);
     });
     window.addEventListener('resize', scheduleYearNavigation);
+    window.visualViewport?.addEventListener('resize', scheduleYearNavigation);
     // Manual browsing takes precedence over a pending anchor animation.
     window.addEventListener('wheel', cancelYearJump, { passive: true });
     window.addEventListener('touchmove', cancelYearJump, { passive: true });
