@@ -113,11 +113,6 @@
     if (element.dataset.profile === 'portrait') {
       element.src = siteUrl(profile.portrait);
       element.alt = `${profile.name} / ${profile.nameZh}`;
-    } else if (element.dataset.profile === 'affiliationEn') {
-      // The final comma separates the institute from its university in this field.
-      const boundary = profile.affiliation.en.lastIndexOf(',');
-      element.innerHTML = boundary < 0 ? escape(profile.affiliation.en)
-        : `<span class="affiliation-institute">${escape(profile.affiliation.en.slice(0, boundary).trim())}</span><span class="affiliation-university">${escape(profile.affiliation.en.slice(boundary + 1).trim())}</span>`;
     } else {
       element.textContent = fields[element.dataset.profile] ?? '';
     }
@@ -245,6 +240,14 @@
         pendingClick = 0;
       };
       const pauseReveal = () => { revealPausedUntil = Date.now() + 1500; };
+      const editButton = document.createElement('button');
+      editButton.type = 'button';
+      editButton.className = 'year-edit-button';
+      editButton.setAttribute('aria-label', 'Jump to year');
+      editButton.setAttribute('aria-controls', 'publication-year-jump');
+      editButton.setAttribute('aria-expanded', 'false');
+      editButton.title = 'Enter a year';
+      editButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 5 5 5M4 20l4-1 12-12a2 2 0 0 0-5-5L3 14l-1 6Z"/></svg>';
       const form = document.createElement('form');
       form.id = 'publication-year-jump';
       form.className = 'year-jump';
@@ -254,25 +257,28 @@
       form.innerHTML = `<label for="publication-year-input">Jump to year</label>
         <div class="year-jump-fields"><input id="publication-year-input" type="text" inputmode="numeric" enterkeyhint="go" autocomplete="off" maxlength="4" placeholder="YYYY" aria-describedby="publication-year-message"><button type="submit">Go</button><button type="button" data-year-cancel aria-label="Cancel year entry">×</button></div>
         <p id="publication-year-message" role="status" aria-live="polite"></p>`;
-      yearNavigation.append(form);
+      yearNavigation.append(editButton, form);
       const input = form.querySelector('input');
       const message = form.querySelector('[role="status"]');
       const available = years.map(year => year.link.textContent.trim());
       const availableText = available.join(', ');
       const closeEditor = (restoreFocus = true) => {
         form.hidden = true;
+        editButton.setAttribute('aria-expanded', 'false');
         if (restoreFocus) (returnFocus || currentYear?.link || years[0].link).focus({ preventScroll: true });
       };
       const openEditor = trigger => {
         cancelPendingClick();
-        returnFocus = trigger?.matches('a') ? trigger : currentYear?.link || years[0].link;
+        returnFocus = trigger?.matches('a, button') ? trigger : currentYear?.link || years[0].link;
         input.value = trigger?.matches('a') ? trigger.textContent.trim() : currentYear?.link.textContent.trim() || available[0];
         input.removeAttribute('aria-invalid');
         message.textContent = `Publication years: ${availableText}.`;
         form.hidden = false;
+        editButton.setAttribute('aria-expanded', 'true');
         input.focus({ preventScroll: true });
         input.select();
       };
+      editButton.addEventListener('click', () => form.hidden ? openEditor(editButton) : closeEditor());
       form.querySelector('[data-year-cancel]').addEventListener('click', () => closeEditor());
       form.addEventListener('submit', event => {
         event.preventDefault();
@@ -330,7 +336,7 @@
         link.draggable = false;
       });
       yearNavigation.addEventListener('dblclick', event => {
-        if (form.contains(event.target)) return;
+        if (form.contains(event.target) || editButton.contains(event.target)) return;
         event.preventDefault();
         openEditor(event.target.closest('a'));
       });
@@ -466,12 +472,13 @@
         yearList.style.setProperty('--year-center-space', '0px');
         const item = years[0].link.getBoundingClientRect();
         if (horizontalYears.matches) {
-          // Center the current year on the paper column.
+          // Center the current year on the paper column, independently of the edit button.
           const bounds = yearNavigation.getBoundingClientRect();
           const contentBounds = (publicationList || yearNavigation).getBoundingClientRect();
           const center = (contentBounds.left + contentBounds.right) / 2;
           const listGap = parseFloat(getComputedStyle(yearList).columnGap) || 0;
-          const sideRoom = Math.min(center - bounds.left, bounds.right - center);
+          const controlGap = parseFloat(getComputedStyle(yearNavigation).columnGap) || 0;
+          const sideRoom = Math.min(center - bounds.left, bounds.right - center - editButton.offsetWidth - controlGap);
           const slots = Math.min(years.length, 5);
           const width = Math.min(slots * item.width + (slots - 1) * listGap, Math.max(item.width, sideRoom * 2));
           yearNavigation.style.setProperty('--year-list-width', `${width}px`);
@@ -483,7 +490,7 @@
           const safeRight = document.documentElement.clientWidth - 12;
           const naturalWidth = years.length * item.width + (years.length - 1) * listGap;
           const canMoveWholeList = center - naturalWidth + item.width / 2 >= safeLeft
-            && center - item.width / 2 + naturalWidth <= safeRight;
+            && center - item.width / 2 + naturalWidth + editButton.offsetWidth + controlGap <= safeRight;
           horizontalWindowed = naturalWidth > width + 1 || !canMoveWholeList;
         }
         const size = horizontalYears.matches ? yearList.clientWidth : yearList.clientHeight;

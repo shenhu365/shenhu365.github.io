@@ -15,8 +15,8 @@ window.SITE_DATA = {
       zh: '研究大模型驱动的演化数据智能，聚焦 AI 科学家智能体系统。'
     },
     about: {
-      en: 'I am a Ph.D. student at the Institute of Big Data Science and Industry, Shanxi University, under the supervision of Prof. Yuhua Qian. My research focuses on LLM-driven evolutionary data intelligence, with an emphasis on AI scientist agent systems. I also collaborate on research in multimodal learning and visual perception.',
-      zh: '我是山西大学大数据科学与产业研究院博士研究生，师从钱宇华教授。主要研究大模型驱动的演化数据智能，聚焦 AI 科学家智能体系统。同时参与多模态学习与视觉感知方向的合作研究。'
+      en: 'Shen Hu is a Ph.D. student at the Institute of Big Data Science and Industry, Shanxi University, advised by Prof. Yuhua Qian. Research focuses on LLM-driven evolutionary data intelligence, with an emphasis on AI scientist agent systems. Collaborative research also spans multimodal learning and visual perception.',
+      zh: '胡深，山西大学大数据科学与产业研究院博士研究生，师从钱宇华教授。研究方向为大模型驱动的演化数据智能，重点关注 AI 科学家智能体系统，同时参与多模态学习与视觉感知方向的合作研究。'
     }
   },
   services: [
@@ -31,7 +31,7 @@ window.SITE_DATA = {
       url: 'https://cpipc.acge.org.cn/cw/hp/4'
     },
     {
-      title: { en: 'China Undergraduate Mathematical Contest in Modeling (CUMCM)', zh: '全国大学生数学建模竞赛' },
+      title: { en: 'Contemporary Undergraduate Mathematical Contest in Modeling (CUMCM)', zh: '全国大学生数学建模竞赛' },
       honor: { en: 'National Second Prize', zh: '全国二等奖' },
       detail: { en: '', zh: '' },
       url: 'https://www.mcm.edu.cn/'
