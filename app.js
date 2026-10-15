@@ -173,7 +173,7 @@
     }
   }
 
-  // Follow the reading position; native links still own scrolling and history.
+  // Native links own jumps; reading changes replace only the current URL fragment.
   const yearNavigation = document.querySelector('#publication-years');
   if (yearNavigation) {
     const years = [...yearNavigation.querySelectorAll('a')].map(link => ({
@@ -201,22 +201,31 @@
       }
       updateYearDock();
     };
+    const syncYearAddress = year => {
+      const hash = window.location.hash;
+      // Keep unrelated anchors and the clean URL on the initial, unscrolled view.
+      if (hash && !years.some(item => item.link.hash === hash)) return;
+      if (!currentYear || hash === year.link.hash || (!hash && year === currentYear)) return;
+      const url = new URL(window.location.href);
+      url.hash = year.link.hash;
+      window.history.replaceState(window.history.state, '', url);
+    };
 
     const updateYearNavigation = () => {
       yearFrame = 0;
       if (!years.length) return;
       const headerBottom = headerInner?.getBoundingClientRect().bottom || 0;
       const yearBounds = yearNavigation.getBoundingClientRect();
-      const joined = horizontalYears.matches && headerBottom > 0
+      const joined = Boolean(header) && horizontalYears.matches && headerBottom > 0
         && Math.abs(yearBounds.top - headerBottom) <= 1;
-      // One backdrop spans both rows once they meet; separate blur edges leave a seam.
+      // Keep the shared backdrop on the fixed header, including at the page bottom.
       if (joined) {
-        yearNavigation.style.setProperty('--joined-navigation-offset', `${yearBounds.top}px`);
-        yearNavigation.style.setProperty('--joined-navigation-left', `${yearBounds.left}px`);
-        yearNavigation.style.setProperty('--joined-navigation-width', `${document.documentElement.clientWidth}px`);
-      } else {
-        ['--joined-navigation-offset', '--joined-navigation-left', '--joined-navigation-width']
-          .forEach(property => yearNavigation.style.removeProperty(property));
+        header.style.setProperty('--joined-navigation-height', `${yearBounds.bottom}px`);
+        header.style.setProperty('--joined-navigation-left', `${yearBounds.left}px`);
+        header.style.setProperty('--joined-navigation-offset', `${headerBottom}px`);
+      } else if (header) {
+        ['--joined-navigation-height', '--joined-navigation-left', '--joined-navigation-offset']
+          .forEach(property => header.style.removeProperty(property));
       }
       document.body.classList.toggle('has-joined-navigation', joined);
       const obstruction = headerBottom + (horizontalYears.matches ? yearNavigation.offsetHeight : 0);
@@ -231,6 +240,7 @@
       // A native smooth jump passes other groups before reaching its target.
       // Keep its selected number and center together during that transition.
       if (current === targetYear) clearYearTarget();
+      if (!targetYear) syncYearAddress(current);
       selectYear(targetYear || current);
     };
     const scheduleYearNavigation = () => {
@@ -252,15 +262,17 @@
       }, 1500);
     };
     window.addEventListener('scroll', scheduleYearNavigation, { passive: true });
-    window.addEventListener('hashchange', () => {
+    const restoreYearTarget = () => {
       const target = years.find(year => year.link.hash === window.location.hash);
       if (target) jumpToYear(target);
       else clearYearTarget();
       scheduleYearNavigation();
+    };
+    // Protect deep links while the browser restores an anchor or history position.
+    ['hashchange', 'popstate', 'pageshow', 'load'].forEach(event => {
+      window.addEventListener(event, restoreYearTarget);
     });
-    ['pageshow', 'resize', 'load'].forEach(event => {
-      window.addEventListener(event, () => { clearYearTarget(); scheduleYearNavigation(); });
-    });
+    window.addEventListener('resize', scheduleYearNavigation);
     // Manual browsing takes precedence over a pending anchor animation.
     window.addEventListener('wheel', cancelYearJump, { passive: true });
     window.addEventListener('touchmove', cancelYearJump, { passive: true });
@@ -571,6 +583,7 @@
       window.addEventListener('pagehide', cancelPendingClick);
     }
 
+    restoreYearTarget();
     updateYearNavigation();
   }
 

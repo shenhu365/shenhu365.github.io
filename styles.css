@@ -20,7 +20,7 @@
   --soft-border: #edf0f6;
   --tint: #eaf0fb;
   --nav: #e9edf5;
-  --navigation-glass: transparent;
+  --navigation-glass: rgb(244 246 251 / 50%);
   --navigation-blur: blur(16px) saturate(120%);
   --shadow: #20395710;
   --header-height: 72px;
@@ -209,9 +209,10 @@ h2 { font-size: 22px; font-weight: 600; line-height: 1.4; letter-spacing: -.5px;
   .publication-browser { --year-heading-gap: 10px; display: block; margin-right: 0; }
   .publication-years { flex-direction: row; align-items: center; justify-content: center; margin-left: 0; top: var(--sticky-header-height); margin-bottom: 2px; padding-block: 0; background: transparent; transition: top 180ms ease; }
   .publication-years::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: var(--background); }
-  /* One full-width backdrop joins either horizontal rail to the main navigation. */
-  .has-joined-navigation .site-header::before { visibility: hidden; }
-  .has-joined-navigation .publication-years::before { top: calc(-1 * var(--joined-navigation-offset)); left: calc(-1 * var(--joined-navigation-left)); right: auto; width: var(--joined-navigation-width); }
+  /* The fixed header carries both rows; the rail paints only its controls above it. */
+  .has-joined-navigation .site-header::before { height: var(--joined-navigation-height); border-bottom-color: transparent; transition: background-color 180ms ease; }
+  .has-joined-navigation .publication-years { z-index: 21; }
+  .has-joined-navigation .publication-years::before { display: none; }
   .publication-years ul { flex: 0 1 auto; flex-direction: row; width: max-content; max-width: 100%; max-height: none; padding-inline: 0; overflow-x: auto; overflow-y: hidden; }
   .publication-years a { justify-content: center; width: 64px; min-width: 64px; padding-inline: 12px; }
   .publication-years.is-enhanced { justify-content: flex-start; }
@@ -229,7 +230,7 @@ h2 { font-size: 22px; font-weight: 600; line-height: 1.4; letter-spacing: -.5px;
 }
 @media (min-width: 681px) and (max-width: 1099px) {
   /* Keep the shared backdrop clear of the profile beside the year row. */
-  .has-joined-navigation .publication-years::before {
+  .has-joined-navigation .site-header::before {
     clip-path: polygon(0 0, 100% 0, 100% 100%, var(--joined-navigation-left) 100%, var(--joined-navigation-left) var(--joined-navigation-offset), 0 var(--joined-navigation-offset));
   }
 }
