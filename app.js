@@ -24,6 +24,93 @@
   window.addEventListener('hashchange', updateNavigation);
   window.addEventListener('pageshow', updateNavigation);
 
+  // Optional touch navigation; native scrolling, controls and edge gestures keep priority.
+  const swipePages = ['', 'publications/', 'awards/'].map(path => new URL(path, siteBase));
+  const swipePageIndex = swipePages.findIndex(url => url.pathname === window.location.pathname);
+  if (swipePageIndex !== -1) {
+    const swipeMedia = window.matchMedia('(max-width: 1366px) and (any-pointer: coarse)');
+    const swipeExcluded = '.site-header, .profile, .publication-years, .year-jump, a, button, form, input, textarea, select, label, summary, [contenteditable]:not([contenteditable="false"]), [tabindex], [role="button"], [role="link"], [role="slider"], [draggable="true"], video, audio, iframe';
+    let swipe = null;
+    let swipeNavigating = false;
+    const clearSwipe = () => { swipe = null; };
+    const swipeUnavailable = () => !swipeMedia.matches || swipeNavigating
+      || Math.abs((window.visualViewport?.scale ?? 1) - 1) > 0.01
+      || Boolean(window.getSelection()?.toString())
+      || Boolean(document.querySelector('.year-jump:not([hidden])'))
+      || Boolean(document.activeElement?.closest('input, textarea, select, [contenteditable]:not([contenteditable="false"])'));
+    const inSwipeControl = element => {
+      if (!element || element.closest(swipeExcluded)) return true;
+      // Future horizontal scrollers must not turn into page navigation surfaces.
+      for (let node = element; node && node !== document.body; node = node.parentElement) {
+        if (node.scrollWidth > node.clientWidth + 1
+          && /auto|scroll/.test(window.getComputedStyle(node).overflowX)) return true;
+      }
+      return false;
+    };
+    document.addEventListener('touchstart', event => {
+      clearSwipe();
+      if (event.touches.length !== 1 || swipeUnavailable()) return;
+      const touch = event.touches[0];
+      const element = event.target instanceof Element ? event.target : event.target?.parentElement;
+      const edge = 32;
+      if (touch.clientX < edge || touch.clientX > window.innerWidth - edge
+        || touch.clientY < edge || touch.clientY > window.innerHeight - edge
+        || inSwipeControl(element)) return;
+      swipe = { id: touch.identifier, x: touch.clientX, y: touch.clientY,
+        scrollX: window.scrollX, scrollY: window.scrollY, time: event.timeStamp,
+        distance: Math.min(160, Math.max(100, window.innerWidth * 0.18)), direction: 0, peak: 0 };
+    }, { passive: true });
+    const trackSwipe = (touch, time) => {
+      if (!swipe || !touch || swipeUnavailable() || time - swipe.time > 1100
+        || Math.abs(window.scrollY - swipe.scrollY) > 12
+        || Math.abs(window.scrollX - swipe.scrollX) > 12) {
+        clearSwipe();
+        return false;
+      }
+      const dx = touch.clientX - swipe.x;
+      const dy = Math.abs(touch.clientY - swipe.y);
+      if (dy > 44 || (!swipe.direction && Math.hypot(dx, dy) >= 20 && Math.abs(dx) < dy * 2)) {
+        clearSwipe();
+        return false;
+      }
+      if (!swipe.direction && Math.abs(dx) >= 20) swipe.direction = Math.sign(dx);
+      const progress = dx * swipe.direction;
+      if (progress < swipe.peak - 20) {
+        clearSwipe();
+        return false;
+      }
+      swipe.peak = Math.max(swipe.peak, progress);
+      return Math.abs(dx) >= swipe.distance && Math.abs(dx) >= dy * 2;
+    };
+    document.addEventListener('touchmove', event => {
+      if (!swipe) return;
+      if (event.touches.length !== 1) { clearSwipe(); return; }
+      trackSwipe([...event.touches].find(touch => touch.identifier === swipe.id), event.timeStamp);
+    }, { passive: true });
+    document.addEventListener('touchend', event => {
+      if (!swipe) return;
+      if (event.touches.length) { clearSwipe(); return; }
+      const touch = [...event.changedTouches].find(item => item.identifier === swipe.id);
+      const completed = trackSwipe(touch, event.timeStamp);
+      const destination = completed && swipePages[swipePageIndex - swipe.direction];
+      clearSwipe();
+      if (!destination) return;
+      swipeNavigating = true;
+      window.location.assign(destination.href);
+    }, { passive: true });
+    document.addEventListener('touchcancel', clearSwipe, { passive: true });
+    window.addEventListener('scroll', () => {
+      if (swipe && (Math.abs(window.scrollY - swipe.scrollY) > 12
+        || Math.abs(window.scrollX - swipe.scrollX) > 12)) clearSwipe();
+    }, { passive: true });
+    window.addEventListener('resize', clearSwipe);
+    window.visualViewport?.addEventListener('resize', clearSwipe);
+    window.addEventListener('pagehide', clearSwipe);
+    window.addEventListener('pageshow', () => { clearSwipe(); swipeNavigating = false; });
+    window.addEventListener('blur', clearSwipe);
+    document.addEventListener('visibilitychange', clearSwipe);
+  }
+
   // Keep navigation height fixed; scrolling only changes its glass background.
   const header = document.querySelector('.site-header');
   if (header) {
