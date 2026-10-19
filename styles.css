@@ -137,10 +137,9 @@ h2 { font-size: 22px; font-weight: 600; line-height: 1.4; letter-spacing: -.5px;
 .award-title a { display: inline-block; min-height: 44px; padding-block: 8px; color: var(--heading); }
 .award-title a:hover { color: var(--link); }
 .award-title a:focus-visible { color: var(--link); }
-.award-title-zh { font-family: var(--font-zh); font-size: 14px; line-height: 1.85; color: var(--muted); }
 .award-honor { margin-top: 15px; font-size: 15px; font-weight: 700; color: var(--text); }
-.award-honor [lang="zh-CN"], .award-detail [lang="zh-CN"] { display: block; font-family: var(--font-zh); font-size: 14px; font-weight: 400; }
 .award-detail { margin-top: 8px; font-size: 14px; line-height: 1.85; color: var(--reading-text); }
+.award [lang="zh-CN"] { display: block; font-family: var(--font-zh); font-size: 14px; font-weight: 400; line-height: 1.85; color: var(--reading-text); }
 .publications-intro { font-size: 13px; }
 .publications-intro a { display: inline-block; padding: 10px 0; min-height: 44px; line-height: 1.7; border: 0; color: var(--link); background: transparent; box-shadow: none; }
 .publications-intro a:hover { text-decoration: underline; }
